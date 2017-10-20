@@ -1,0 +1,10 @@
+Chunk server 
+- Managing file chunks
+- One instance of this running on each machine 
+- so this one i guess be a Singleton
+
+Controller
+- Managing infor about chunk server abd chunk within system
+
+Client
+- Storing,Retrieving and updating FILES.
