@@ -1,44 +1,63 @@
 package Client;
 
-import java.io.DataOutputStream;
+
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+
 public class TCPSender {
 
-	private Socket socket;
-	private DataOutputStream dout;
+   public Command sendAndReceiveData(String hostIp, int hostPort, byte[] data) {
+      Socket socket = null;
+      BufferedOutputStream dout = null;
+      Command response = null;
+      try {
+         socket = new Socket(hostIp, hostPort);
 
-	public TCPSender() throws IOException {
-		this.socket = socket;
-		
-	}
+         // write data
+         dout = new BufferedOutputStream(socket.getOutputStream());
+         dout.write(data);
+         dout.flush();
+         // read and parse response
+         response = CommandFactory.process(socket);
+      } catch (Exception e) {
+         e.printStackTrace();
+      } finally {
+         try {
+            dout.close();
+            socket.close();
+         } catch (Exception e) {
+            e.printStackTrace();
+         }
+      }
 
-	public void sendData(byte[] dataToSend) throws IOException {
-		int dataLength = dataToSend.length;
-		dout.writeInt(dataLength);
-		dout.write(dataToSend, 0, dataLength);
-		dout.flush();
-	}
+      return response;
+   }
 
-	public void sendMessage(Socket socket) throws IOException {
-		Socket sc=null;
-		try {
-			
-			sc= socket;
-			dout = new DataOutputStream(sc.getOutputStream());			
-			int randomN = 191;
-			dout.writeInt(randomN);
-			dout.flush();
-			
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (dout != null)
-				dout.close();
-		     	sc.close();
-		}
-	}
+   public void sendData(String hostIp, int hostPort, byte[] data) throws Exception {
+      Socket socket = null;
+      try {
+         socket = new Socket(hostIp, hostPort);
+         sendData(socket, data);
+      } catch (Exception e) {
+         e.printStackTrace();
+      } finally {
+         socket.close();
+      }
+   }
+
+   public void sendData(Socket socket, byte[] data) throws Exception {
+      BufferedOutputStream dout = null;
+      try {
+         dout = new BufferedOutputStream(socket.getOutputStream());
+         dout.write(data);
+      } catch (IOException e) {
+         e.printStackTrace();
+      } finally {
+         dout.close();
+      }
+
+   }
 
 }

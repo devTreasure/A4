@@ -2,12 +2,8 @@ package Controller;
 import java.io.FileInputStream;
 import java.security.MessageDigest;
 
-public class Cotroller {
+public class chesumUtil {
 	
-	
-
-
-
 	  public static void main(String args[]) throws Exception {
 
 	    String datafile = "D:\\INSTLOG.TXT";

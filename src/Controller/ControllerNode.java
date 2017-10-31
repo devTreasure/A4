@@ -8,15 +8,22 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
-public class ControllerNode implements Runnable {
+import ChunkServer.ChunkServers;
+import Client.ChunkServersRequestCommand;
+import Client.Command;
+import Client.Node;
+import Client.Response;
+
+public class ControllerNode implements Node {
 
 	public String controllerNodeIP;
 	public int controllerNodePORT;
 	public static final String EXIT_COMMAND = "exit";
 	public static final String WRITE_COMMAND = "write";
 	public static final String READ_COMMAND = "read";
-
+	public String str_getChunkServer_Request = "GET_3_CHUNK_SERVERS";
 	public String discoveryNodeName;
 	public ServerSocket serverSocket;
 	// public Map<Integer, RingNodes> ringNodes = null;
@@ -27,11 +34,18 @@ public class ControllerNode implements Runnable {
 	public String str_REG_REQUEST = "REG_REQUEST";
 	public String str_MAJOR_HEARTBEAT_REQUEST = "MAJOR_HB";
 	public String str_MINOR_HEARTBEAT_REQUEST = "MINOR_HB";
-
+	private ControllerNodeWorker controllerReceiverWorker;
+	private ArrayList<ChunkServers> chunkServerCollection =new ArrayList<ChunkServers>();
 	public ControllerNode() {
 
 		// ringNodes = new HashMap<Integer, RingNodes>();
 		// this.objMiddleware = new MiddleWare(this);
+		chunkServerCollection.clear();
+		ChunkServers  cs1 = new ChunkServers();
+		cs1.IP="localhost";
+		cs1.PORT=45454;
+		chunkServerCollection= new ArrayList<ChunkServers>();
+		chunkServerCollection.add(cs1);
 
 	}
 
@@ -43,13 +57,21 @@ public class ControllerNode implements Runnable {
 		// collect the available chunk servers
 	}
 
-	public void get3AavailableChunkServers() {
-
+	public ArrayList<ChunkServers> get3AavailableChunkServers() {
+		return chunkServerCollection;
+	}
+	
+	
+	public Command returnTheChunkServer(ChunkServersRequestCommand command)
+	{
+		 ChunkServers chunkServer=  chunkServerCollection.get(0);
+		 return new Response(true,"Bhavin success");
 	}
 
 	private void intializeControllerNode() throws IOException {
-		// TODO Auto-generated method stub
-		ServerSocket sc = new ServerSocket(0);
+
+		
+		ServerSocket sc = new ServerSocket(63120);
 
 		System.out.println("Resolved Host name is :");
 
@@ -63,17 +85,19 @@ public class ControllerNode implements Runnable {
 
 		this.serverSocket = sc;
 
-		System.out.println(" Controller node is hoasted at : " + this.controllerNodeIP + "  " + " Listenning port : "
-				+ sc.getLocalPort());
+		System.out.println(" Controller node is hoasted at : " + this.controllerNodeIP + "  " + " Listenning port : "+ sc.getLocalPort());
+		
+		controllerReceiverWorker= new ControllerNodeWorker(sc, this);
+		
+		Thread t = new Thread(controllerReceiverWorker);
+		
+		t.start();
 
 	}
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		System.out.println("Enter register tot register new node");
-
-		String[] strSplit = null;
-
+	
 		// collatorNode.collatorIP = strIP;
 		// collatorNode.collatorPORT = nodePort;
 
@@ -81,14 +105,12 @@ public class ControllerNode implements Runnable {
 		// Thread thread = new Thread(collatorNode);
 		// thread.start();
 
+	//	ControllerNode controllerNode = new ControllerNode();
 		ControllerNode controllerNode = new ControllerNode();
-
+		
 		controllerNode.intializeControllerNode();
 
-		Thread t = new Thread(controllerNode);
-
-		t.start();
-
+		
 		boolean continueOperations = true;
 
 		while (continueOperations) {
@@ -122,62 +144,49 @@ public class ControllerNode implements Runnable {
 		System.out.println("Bye.");
 	}
 
-	public static void return3AvailableChunkServers(ControllerNode controller) {
+	public static void return3AvailableChunkServers(ControllerNode controllerNode) {
 		// TODO Auto-generated method stub
-		controller.get3AavailableChunkServers();
+		controllerNode.get3AavailableChunkServers();
+	}
+
+	
+	public void chunkServerRepo()
+	{
+		
+		
 	}
 
 	@Override
-	public void run() {
-
-		try {
-			receiveMessage();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public Command notify(Command command) throws Exception {
+		// TODO Auto-generated method stub
+		 if(command instanceof ChunkServersRequestCommand)
+		 {
+			 return returnTheChunkServer( (ChunkServersRequestCommand) command);
+		 }
+	     /*  Command response = new NodeDetails("", -1, -1, true, "Nothing");
+	       if (command instanceof ChunkServersRequestCommand) {
+	          ResolveSuccessorInFingerTableMessage asm = (ResolveSuccessorInFingerTableMessage) command;
+	          response = resolveTragetNode(asm.id);
+	       } else if (command instanceof SetMeAsSuccessor) {
+	          SetMeAsSuccessor msg = (SetMeAsSuccessor) command;
+	          response = successorChanged(msg);
+	       } else if (command instanceof SetMeAsPredecessor) {
+	          SetMeAsPredecessor msg = (SetMeAsPredecessor) command;
+	          response = predecessorChanged(msg);
+	       } else if (command instanceof GetSuccessor) {
+	          // GetSuccessor msg = (GetSuccessor) command;
+	          response = getSuccessor();
+	       } else if (command instanceof UpdateFingerTable) {
+	          // GetSuccessor msg = (GetSuccessor) command;
+	          response = updateFingerTable();
+	       } else if(command instanceof PredecessorDetail) {
+	          response = predecessor;
+	       }*/
+//	       System.out.println("Response: " + response);
+	       //return response;
+		return null;
 	}
+	
+	
 
-	public void receiveMessage() throws IOException {
-
-		System.out.println("Started Discovery node receiver thread;");
-		DataInputStream din = null;
-		DataOutputStream dout = null;
-		Socket socket;
-
-		while (true) {
-
-			socket = serverSocket.accept();
-
-			System.out.println("..: Registration-Request Socket acceepted :...");
-
-			try {
-
-				din = new DataInputStream(socket.getInputStream());
-
-				dout = new DataOutputStream(socket.getOutputStream());
-
-				// int number = din.readInt();
-				int requestIdentifierLength = din.readInt();
-
-				byte[] identifierBytes = new byte[requestIdentifierLength];
-
-				din.readFully(identifierBytes);
-
-				String strID = new String(identifierBytes);
-
-				int nodeID = 0;
-
-				int nodeListenningPort = 0;
-
-				if (strID.equalsIgnoreCase(str_REG_REQUEST)) {
-				}
-
-			}
-
-			catch (Exception ex) {
-
-			}
-		}
-	}
 }
