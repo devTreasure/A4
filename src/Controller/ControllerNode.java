@@ -16,6 +16,7 @@ import Client.ChunkServersRequestCommand;
 import Client.Command;
 import Client.Node;
 import Client.Response;
+import Client.chunkNodeFileInfoCommand;
 import Client.chunkNodeWentliveRequest;
 
 public class ControllerNode implements Node {
@@ -75,6 +76,16 @@ public class ControllerNode implements Node {
 	}
 	
 	public Command addChunkinfo2Collection(chunkNodeWentliveRequest command)
+	{
+		
+	  /*   System.out.println(command.chunkIP+":"+command.chunkPORT );
+		 chunkServerCollection.add(new ChunkServers(command.ipAddress,command.port));
+		 System.out.println("Collection size :"+chunkServerCollection.size());*/
+		 return new Response(true,"new node is added");
+	}
+
+	
+	public Command colectfilesInfo(chunkNodeFileInfoCommand command)
 	{
 	     System.out.println(command.chunkIP+":"+command.chunkPORT );
 		 chunkServerCollection.add(new ChunkServers(command.ipAddress,command.port));
