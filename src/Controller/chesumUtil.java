@@ -10,7 +10,7 @@ public class chesumUtil {
 
 	    MessageDigest md = MessageDigest.getInstance("SHA1");
 	    FileInputStream fis = new FileInputStream(datafile);
-	    byte[] dataBytes = new byte[1024];
+	    byte[] dataBytes = new byte[8192];
 
 	    int nread = 0;
 

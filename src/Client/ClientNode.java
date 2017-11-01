@@ -133,11 +133,13 @@ public class ClientNode implements Node {
 
 	private void return3AvailableChunkServers(ClientNode clientnode) throws Exception {
 		
-		ChunkServersRequestCommand cmd = new ChunkServersRequestCommand(this.controllerNodeIP, this.controllerNodePORT,3);
+		ChunkServersRequestCommand cmd = new ChunkServersRequestCommand(this.controllerNodeIP, this.controllerNodePORT,7);
 
 		Command resp =new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, cmd.unpack());
 	
 	    Response response = (Response) resp;
+	    
+	    System.out.println(response.getMessage());
 	    
 	      if (!response.isSuccess()) {
 	         throw new RuntimeException("Node Id already exist. Please use another id");
@@ -153,7 +155,7 @@ public class ClientNode implements Node {
 		System.out.println("Received command >> " + command);
 		if (command instanceof ChunkServersRequestCommand) {
 			// 1. Register request (Check for id collision)
-			 
+			 System.out.println("Client node -- notify() method");
 			
 			// return ChunkServersRequestCommand((ChunkServersRequestCommand) command);
 		}

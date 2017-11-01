@@ -6,28 +6,27 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ChunkServersRequestCommand implements Command {
-	
-	public static final String cmd = "CMD_ChunkServers_RQST";
+public class chunkNodeWentliveRequest implements Command {
+	public static final String cmd = "CMD_CHUNK_NODE_WENT_LIVE";
 
 	public String ipAddress;
 	public int port;
-    public int id;
+	public String chunkIP;
+	public int chunkPORT;
 
-	public ChunkServersRequestCommand() {
+	public chunkNodeWentliveRequest() {
 	}
 
-	public ChunkServersRequestCommand(String ipAddress, int port,int id) {
+	public chunkNodeWentliveRequest(String ipAddress, int port,String ChunkipAddress, int Chunkport) {
 		super();
 		this.ipAddress = ipAddress;
 		this.port = port;
-		this.id=id;
+		this.chunkIP=ChunkipAddress;
+		this.chunkPORT=Chunkport;
 	}
-	
-
-	
 
 	public byte[] unpack() {
+
 		byte[] marshalledBytes = null;
 		ByteArrayOutputStream baOutputStream = null;
 		DataOutputStream dout = null;
@@ -39,8 +38,10 @@ public class ChunkServersRequestCommand implements Command {
 			dout.write(cmd.getBytes());
 			dout.writeInt(ipAddress.length());
 			dout.write(ipAddress.getBytes());
-			dout.writeInt(port);	
-			dout.writeInt(id);		
+			dout.writeInt(port);
+			dout.writeInt(chunkIP.length());
+			dout.write(chunkIP.getBytes());
+			dout.writeInt(chunkPORT);
 			dout.flush();
 			marshalledBytes = baOutputStream.toByteArray();
 		} catch (Exception e) {
@@ -58,9 +59,12 @@ public class ChunkServersRequestCommand implements Command {
 
 	public void pack(DataInputStream din) {
 		try {
+
 			ipAddress = readString(din);
 			port = din.readInt();
-			id = din.readInt();
+			chunkIP=readString(din);
+			chunkPORT= din.readInt();
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -73,9 +77,9 @@ public class ChunkServersRequestCommand implements Command {
 		return new String(IP_address);
 	}
 
-   @Override
-   public String toString() {
-      return "ChunkServersRequestCommand [cmd=" + cmd + ", ipAddress=" + ipAddress + ", port=" + port   + "]";
-   }	
-	
+	@Override
+	public String toString() {
+		return "ChunkServersRequestCommand [cmd=" + cmd + ", ipAddress=" + chunkIP + ", port=" + chunkPORT + "]";
+	}
+
 }

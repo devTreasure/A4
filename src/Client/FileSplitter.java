@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class FileSplitter {
 
-    private static final int BUFSIZE = 4*1024;
+    private static final int BUFSIZE = 64*1024;
     public boolean needsSplitting(String file, int chunkSize) {
         return new File(file).length() > chunkSize;
     }

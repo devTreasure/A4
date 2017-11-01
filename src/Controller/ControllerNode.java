@@ -1,6 +1,7 @@
 package Controller;
 
 import java.io.BufferedReader;
+import java.io.Console;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import Client.ChunkServersRequestCommand;
 import Client.Command;
 import Client.Node;
 import Client.Response;
+import Client.chunkNodeWentliveRequest;
 
 public class ControllerNode implements Node {
 
@@ -26,8 +28,7 @@ public class ControllerNode implements Node {
 	public String str_getChunkServer_Request = "GET_3_CHUNK_SERVERS";
 	public String discoveryNodeName;
 	public ServerSocket serverSocket;
-	// public Map<Integer, RingNodes> ringNodes = null;
-	// public MiddleWare objMiddleware;
+
 	public String str_SUCC_REQUEST = "SUCC_REQUEST";
 	public String str_RANDOM_REQUEST = "RANDOM_NODE_REQUEST";
 	public String str_RANDOM_RESPONSE = "RANDOM_NODE_RESPONSE";
@@ -35,7 +36,9 @@ public class ControllerNode implements Node {
 	public String str_MAJOR_HEARTBEAT_REQUEST = "MAJOR_HB";
 	public String str_MINOR_HEARTBEAT_REQUEST = "MINOR_HB";
 	private ControllerNodeWorker controllerReceiverWorker;
+
 	private ArrayList<ChunkServers> chunkServerCollection =new ArrayList<ChunkServers>();
+	
 	public ControllerNode() {
 
 		// ringNodes = new HashMap<Integer, RingNodes>();
@@ -48,10 +51,10 @@ public class ControllerNode implements Node {
 		chunkServerCollection.add(cs1);
 
 	}
-
 	public void sendtheHealthchekSingnalToCunkServer() {
 		//
 	}
+
 
 	public void collecttheAvailbleChunkServers() {
 		// collect the available chunk servers
@@ -64,9 +67,21 @@ public class ControllerNode implements Node {
 	
 	public Command returnTheChunkServer(ChunkServersRequestCommand command)
 	{
-		 ChunkServers chunkServer=  chunkServerCollection.get(0);
+		if(chunkServerCollection.size()>0)
+		{
+		  ChunkServers chunkServer=  chunkServerCollection.get(0);
+		}
 		 return new Response(true,"Bhavin success");
 	}
+	
+	public Command addChunkinfo2Collection(chunkNodeWentliveRequest command)
+	{
+	     System.out.println(command.chunkIP+":"+command.chunkPORT );
+		 chunkServerCollection.add(new ChunkServers(command.ipAddress,command.port));
+		 System.out.println("Collection size :"+chunkServerCollection.size());
+		 return new Response(true,"new node is added");
+	}
+
 
 	private void intializeControllerNode() throws IOException {
 
@@ -94,18 +109,15 @@ public class ControllerNode implements Node {
 		t.start();
 
 	}
+	
+	public void filesmaintaindbythisChunkServer()
+	{
+		
+	}
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 	
-		// collatorNode.collatorIP = strIP;
-		// collatorNode.collatorPORT = nodePort;
-
-		// collatorNode.initializeCollatorNode(collatorNode.collatorPORT);
-		// Thread thread = new Thread(collatorNode);
-		// thread.start();
-
-	//	ControllerNode controllerNode = new ControllerNode();
 		ControllerNode controllerNode = new ControllerNode();
 		
 		controllerNode.intializeControllerNode();
@@ -150,11 +162,7 @@ public class ControllerNode implements Node {
 	}
 
 	
-	public void chunkServerRepo()
-	{
-		
-		
-	}
+
 
 	@Override
 	public Command notify(Command command) throws Exception {
@@ -162,6 +170,10 @@ public class ControllerNode implements Node {
 		 if(command instanceof ChunkServersRequestCommand)
 		 {
 			 return returnTheChunkServer( (ChunkServersRequestCommand) command);
+		 }
+		 
+		 if(command instanceof chunkNodeWentliveRequest) {
+			 return addChunkinfo2Collection( (chunkNodeWentliveRequest) command);
 		 }
 	     /*  Command response = new NodeDetails("", -1, -1, true, "Nothing");
 	       if (command instanceof ChunkServersRequestCommand) {

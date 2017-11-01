@@ -24,12 +24,21 @@ public class CommandFactory {
             	 chunkServersRequestCmd.pack(din);
                   cmd = chunkServersRequestCmd;
              } 
-             /*
+            
              else if (Response.cmd.equals(str_request_type)) {
                   Response registerReponse = new Response();
                   registerReponse.pack(din);
                   cmd = registerReponse;
-             } else if(ReturnRandomNodeCommand.cmd.equals(str_request_type)) {
+             }
+             
+             else if(chunkNodeWentliveRequest.cmd.equals(str_request_type))
+             {
+            	 chunkNodeWentliveRequest chunkNodeAliveCmd = new chunkNodeWentliveRequest();
+            	 chunkNodeAliveCmd.pack(din);
+            	 cmd =chunkNodeAliveCmd;
+             }
+            /* 
+             else if(ReturnRandomNodeCommand.cmd.equals(str_request_type)) {
                 ReturnRandomNodeCommand command = new ReturnRandomNodeCommand();
                 command.pack(din);
                 cmd = command;
