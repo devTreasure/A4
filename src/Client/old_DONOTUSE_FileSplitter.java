@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class FileSplitter {
+public class old_DONOTUSE_FileSplitter {
 
     private static final int BUFSIZE = 64*1024;
     public boolean needsSplitting(String file, int chunkSize) {
