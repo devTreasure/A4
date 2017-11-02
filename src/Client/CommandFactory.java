@@ -37,6 +37,13 @@ public class CommandFactory {
             	 chunkNodeAliveCmd.pack(din);
             	 cmd =chunkNodeAliveCmd;
              }
+             
+             else if(chunkNodePollingCommand.cmd.equals(str_request_type))
+             {
+            	 chunkNodePollingCommand chunkNodePollingCmd = new chunkNodePollingCommand();
+            	 chunkNodePollingCmd.pack(din);
+            	 cmd =chunkNodePollingCmd;
+             }
             /* 
              else if(ReturnRandomNodeCommand.cmd.equals(str_request_type)) {
                 ReturnRandomNodeCommand command = new ReturnRandomNodeCommand();

@@ -12,6 +12,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 import ChunkServer.ChunkServers;
+import ChunkServer.fileMonitor;
 import Client.ChunkServersRequestCommand;
 import Client.Command;
 import Client.Node;
@@ -38,24 +39,24 @@ public class ControllerNode implements Node {
 	public String str_MINOR_HEARTBEAT_REQUEST = "MINOR_HB";
 	private ControllerNodeWorker controllerReceiverWorker;
 
-	private ArrayList<ChunkServers> chunkServerCollection =new ArrayList<ChunkServers>();
-	
+	private ArrayList<ChunkServers> chunkServerCollection = new ArrayList<ChunkServers>();
+
 	public ControllerNode() {
 
 		// ringNodes = new HashMap<Integer, RingNodes>();
 		// this.objMiddleware = new MiddleWare(this);
 		chunkServerCollection.clear();
-		ChunkServers  cs1 = new ChunkServers();
-		cs1.IP="localhost";
-		cs1.PORT=45454;
-		chunkServerCollection= new ArrayList<ChunkServers>();
+		ChunkServers cs1 = new ChunkServers();
+		cs1.IP = "localhost";
+		cs1.PORT = 45454;
+		chunkServerCollection = new ArrayList<ChunkServers>();
 		chunkServerCollection.add(cs1);
 
 	}
+
 	public void sendtheHealthchekSingnalToCunkServer() {
 		//
 	}
-
 
 	public void collecttheAvailbleChunkServers() {
 		// collect the available chunk servers
@@ -64,39 +65,26 @@ public class ControllerNode implements Node {
 	public ArrayList<ChunkServers> get3AavailableChunkServers() {
 		return chunkServerCollection;
 	}
-	
-	
-	public Command returnTheChunkServer(ChunkServersRequestCommand command)
-	{
-		if(chunkServerCollection.size()>0)
-		{
-		  ChunkServers chunkServer=  chunkServerCollection.get(0);
+
+	public Command returnTheChunkServer(ChunkServersRequestCommand command) {
+		if (chunkServerCollection.size() > 0) {
+			ChunkServers chunkServer = chunkServerCollection.get(0);
 		}
-		 return new Response(true,"Bhavin success");
-	}
-	
-	public Command addChunkinfo2Collection(chunkNodeWentliveRequest command)
-	{
-		
-	  /*   System.out.println(command.chunkIP+":"+command.chunkPORT );
-		 chunkServerCollection.add(new ChunkServers(command.ipAddress,command.port));
-		 System.out.println("Collection size :"+chunkServerCollection.size());*/
-		 return new Response(true,"new node is added");
+		return new Response(true, "Bhavin success");
 	}
 
-	
-	public Command colectfilesInfo(chunkNodeFileInfoCommand command)
-	{
-	     System.out.println(command.chunkIP+":"+command.chunkPORT );
-		 chunkServerCollection.add(new ChunkServers(command.ipAddress,command.port));
-		 System.out.println("Collection size :"+chunkServerCollection.size());
-		 return new Response(true,"new node is added");
+	public Command addChunkinfo2Collection(chunkNodeWentliveRequest command) {
+
+		System.out.println(command.chunkIP + ":" + command.chunkPORT);
+		chunkServerCollection.add(new ChunkServers(command.ipAddress, command.port));
+		System.out.println("Collection size :" + chunkServerCollection.size());
+
+		return new Response(true, "new node is added");
 	}
 
 
 	private void intializeControllerNode() throws IOException {
 
-		
 		ServerSocket sc = new ServerSocket(63120);
 
 		System.out.println("Resolved Host name is :");
@@ -111,29 +99,28 @@ public class ControllerNode implements Node {
 
 		this.serverSocket = sc;
 
-		System.out.println(" Controller node is hoasted at : " + this.controllerNodeIP + "  " + " Listenning port : "+ sc.getLocalPort());
-		
-		controllerReceiverWorker= new ControllerNodeWorker(sc, this);
-		
+		System.out.println(" Controller node is hoasted at : " + this.controllerNodeIP + "  " + " Listenning port : "
+				+ sc.getLocalPort());
+
+		controllerReceiverWorker = new ControllerNodeWorker(sc, this);
+
 		Thread t = new Thread(controllerReceiverWorker);
-		
+
 		t.start();
 
 	}
-	
-	public void filesmaintaindbythisChunkServer()
-	{
-		
+
+	public void filesmaintaindbythisChunkServer() {
+
 	}
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-	
+
 		ControllerNode controllerNode = new ControllerNode();
-		
+
 		controllerNode.intializeControllerNode();
 
-		
 		boolean continueOperations = true;
 
 		while (continueOperations) {
@@ -172,44 +159,34 @@ public class ControllerNode implements Node {
 		controllerNode.get3AavailableChunkServers();
 	}
 
-	
-
-
 	@Override
 	public Command notify(Command command) throws Exception {
 		// TODO Auto-generated method stub
-		 if(command instanceof ChunkServersRequestCommand)
-		 {
-			 return returnTheChunkServer( (ChunkServersRequestCommand) command);
-		 }
-		 
-		 if(command instanceof chunkNodeWentliveRequest) {
-			 return addChunkinfo2Collection( (chunkNodeWentliveRequest) command);
-		 }
-	     /*  Command response = new NodeDetails("", -1, -1, true, "Nothing");
-	       if (command instanceof ChunkServersRequestCommand) {
-	          ResolveSuccessorInFingerTableMessage asm = (ResolveSuccessorInFingerTableMessage) command;
-	          response = resolveTragetNode(asm.id);
-	       } else if (command instanceof SetMeAsSuccessor) {
-	          SetMeAsSuccessor msg = (SetMeAsSuccessor) command;
-	          response = successorChanged(msg);
-	       } else if (command instanceof SetMeAsPredecessor) {
-	          SetMeAsPredecessor msg = (SetMeAsPredecessor) command;
-	          response = predecessorChanged(msg);
-	       } else if (command instanceof GetSuccessor) {
-	          // GetSuccessor msg = (GetSuccessor) command;
-	          response = getSuccessor();
-	       } else if (command instanceof UpdateFingerTable) {
-	          // GetSuccessor msg = (GetSuccessor) command;
-	          response = updateFingerTable();
-	       } else if(command instanceof PredecessorDetail) {
-	          response = predecessor;
-	       }*/
-//	       System.out.println("Response: " + response);
-	       //return response;
+		if (command instanceof ChunkServersRequestCommand) {
+			return returnTheChunkServer((ChunkServersRequestCommand) command);
+		}
+
+		if (command instanceof chunkNodeWentliveRequest) {
+			return addChunkinfo2Collection((chunkNodeWentliveRequest) command);
+		}
+	
+		/*
+		 * Command response = new NodeDetails("", -1, -1, true, "Nothing"); if (command
+		 * instanceof ChunkServersRequestCommand) { ResolveSuccessorInFingerTableMessage
+		 * asm = (ResolveSuccessorInFingerTableMessage) command; response =
+		 * resolveTragetNode(asm.id); } else if (command instanceof SetMeAsSuccessor) {
+		 * SetMeAsSuccessor msg = (SetMeAsSuccessor) command; response =
+		 * successorChanged(msg); } else if (command instanceof SetMeAsPredecessor) {
+		 * SetMeAsPredecessor msg = (SetMeAsPredecessor) command; response =
+		 * predecessorChanged(msg); } else if (command instanceof GetSuccessor) { //
+		 * GetSuccessor msg = (GetSuccessor) command; response = getSuccessor(); } else
+		 * if (command instanceof UpdateFingerTable) { // GetSuccessor msg =
+		 * (GetSuccessor) command; response = updateFingerTable(); } else if(command
+		 * instanceof PredecessorDetail) { response = predecessor; }
+		 */
+		// System.out.println("Response: " + response);
+		// return response;
 		return null;
 	}
-	
-	
 
 }

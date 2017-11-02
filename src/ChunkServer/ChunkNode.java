@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import javax.print.DocFlavor.CHAR_ARRAY;
 
@@ -18,6 +19,7 @@ import Client.Command;
 import Client.Node;
 import Client.Response;
 import Client.TCPSender;
+import Client.chunkNodeFileInfoCommand;
 import Client.chunkNodeWentliveRequest;
 
 public class ChunkNode implements Node {
@@ -49,6 +51,26 @@ public class ChunkNode implements Node {
 		// ringNodes = new HashMap<Integer, RingNodes>();
 		// this.objMiddleware = new MiddleWare(this);
 
+	}
+	public Command collectfilesInfo(chunkNodeFileInfoCommand command) {
+		fileMonitor fmonitor = new fileMonitor();
+		ArrayList<String> filesList =null;
+		boolean hasfiles = fmonitor.dofileExists();
+
+		if (hasfiles) {
+		    StringBuilder builder = new StringBuilder();
+			filesList=fmonitor.getAllfilesInfoOnChunkServer();
+			String fileString ="";
+			 for (int i = 0; i < filesList.size(); i++) {
+				builder.append(filesList.get(i).trim()).append(":");
+			}
+			return new Response(true, builder.toString());
+		}
+		else
+		{
+
+		return new Response(true, "Nofiles");
+		}
 	}
 
 	
@@ -121,7 +143,7 @@ public class ChunkNode implements Node {
 		
 	}
 
-	private void sendtheChunkNodeinfotoController() throws Exception {
+	public void sendtheChunkNodeinfotoController() throws Exception {
 		// TODO Auto-generated method stub
 		chunkNodeWentliveRequest livereq = new chunkNodeWentliveRequest(this.controllerNodeIP,this.controllerNodePORT,this.chunkNodeIP,this.chunkrNodePORT);
 		//Socket sc = new Socket(this.controllerNodeIP, this.controllerNodePORT);
@@ -205,6 +227,13 @@ public class ChunkNode implements Node {
 	@Override
 	public Command notify(Command command) throws Exception {
 		// TODO Auto-generated method stub
+		
+		
+		if(command instanceof chunkNodeFileInfoCommand)
+		{
+			return collectfilesInfo((chunkNodeFileInfoCommand) command);
+		}
+	
 		return null;
 	}
 
