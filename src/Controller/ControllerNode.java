@@ -10,6 +10,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import ChunkServer.ChunkServers;
 import ChunkServer.fileMonitor;
@@ -40,7 +41,7 @@ public class ControllerNode implements Node {
 	private ControllerNodeWorker controllerReceiverWorker;
 
 	private ArrayList<ChunkServers> chunkServerCollection = new ArrayList<ChunkServers>();
-
+	private Hashtable<String,String> chunkServerFileInfoCollection = new Hashtable<String,String>();
 	public ControllerNode() {
 
 		// ringNodes = new HashMap<Integer, RingNodes>();
@@ -80,6 +81,16 @@ public class ControllerNode implements Node {
 		System.out.println("Collection size :" + chunkServerCollection.size());
 
 		return new Response(true, "new node is added");
+	}
+	
+	
+	public Command collectchunkNodeFileDetails(chunkNodeFileInfoCommand command) {
+
+		System.out.println(command.fileName + ":" + command.checksumID);
+		chunkServerFileInfoCollection.put(command.fileName, command.checksumID);
+		System.out.println("File Collection size :" + chunkServerFileInfoCollection.size());
+		
+		return new Response(true, "chunk file info recevied by controller");
 	}
 
 
@@ -158,6 +169,7 @@ public class ControllerNode implements Node {
 		// TODO Auto-generated method stub
 		controllerNode.get3AavailableChunkServers();
 	}
+	
 
 	@Override
 	public Command notify(Command command) throws Exception {
@@ -168,6 +180,11 @@ public class ControllerNode implements Node {
 
 		if (command instanceof chunkNodeWentliveRequest) {
 			return addChunkinfo2Collection((chunkNodeWentliveRequest) command);
+		}
+	
+		
+		if (command instanceof chunkNodeFileInfoCommand) {
+			return collectchunkNodeFileDetails((chunkNodeFileInfoCommand) command);
 		}
 	
 		/*

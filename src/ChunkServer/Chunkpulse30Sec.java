@@ -1,6 +1,8 @@
 package ChunkServer;
 
+import java.io.IOException;
 import java.net.ServerSocket;
+import java.security.NoSuchAlgorithmException;
 
 import Client.ChunkServersRequestCommand;
 import Client.Command;
@@ -27,16 +29,17 @@ public class Chunkpulse30Sec  implements Runnable{
 		while(true) {
 			try {
 				Thread.sleep(30000);
-				chunkNodePollingCommand cmd = new chunkNodePollingCommand(this.node.controllerNodeIP, this.node.controllerNodePORT,"thisfile");
-
-				Command resp =new TCPSender().sendAndReceiveData(this.node.controllerNodeIP, this.node.controllerNodePORT, cmd.unpack());
-			
-			    Response response = (Response) resp;
-			    
-			    System.out.println(response.getMessage());
+				
+				node.sendchunkkinfoToCOntroller();
 
 				System.out.println("Pulse 30 sec");
 			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

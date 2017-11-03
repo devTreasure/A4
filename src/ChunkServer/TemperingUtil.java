@@ -15,9 +15,10 @@ public class TemperingUtil {
 		
 		this.checkSumID = "";
 		
-		String datafile = "D:\\INSTLOG.TXT";
+		String datafile = "D:\\destination\\"+ strFile;
 		
-
+		System.out.println("Checksum being generated for :"+strFile);
+		
 		MessageDigest md = MessageDigest.getInstance("SHA1");
 		FileInputStream fis = new FileInputStream(datafile);
 		byte[] dataBytes = new byte[8192];  //chunk would be of 8 KB

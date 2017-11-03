@@ -26,7 +26,7 @@ public class ChunkNodeWorker  implements Runnable{
 
 	   @Override
 	   public void run() {
-	      System.out.println("Started ChunkNodeWorker thread....");
+	      System.out.println("Started Chunk Node Worker thread....");
 
 	      while (continueFlag) {
 	         Socket socket = null;

@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 import javax.print.DocFlavor.CHAR_ARRAY;
@@ -20,6 +21,7 @@ import Client.Node;
 import Client.Response;
 import Client.TCPSender;
 import Client.chunkNodeFileInfoCommand;
+import Client.chunkNodePollingCommand;
 import Client.chunkNodeWentliveRequest;
 
 public class ChunkNode implements Node {
@@ -37,6 +39,7 @@ public class ChunkNode implements Node {
 	public String chunkserverNodeName;
 	public ServerSocket serverSocket;
 	public String filePATH="D:\\chunkStorage";
+	public  ArrayList<String> fileCollection = new ArrayList<String>();
 	
 	public String str_SUCC_REQUEST = "SUCC_REQUEST";
 	public String str_RANDOM_REQUEST = "RANDOM_NODE_REQUEST";
@@ -48,9 +51,7 @@ public class ChunkNode implements Node {
 
 	public ChunkNode() {
 
-		// ringNodes = new HashMap<Integer, RingNodes>();
-		// this.objMiddleware = new MiddleWare(this);
-
+		this.chunkServerStatistics();
 	}
 	public Command collectfilesInfo(chunkNodeFileInfoCommand command) {
 		fileMonitor fmonitor = new fileMonitor();
@@ -77,6 +78,21 @@ public class ChunkNode implements Node {
 	public void sendtheHealthchekSingnalToCunkServer() {
 		//
 	}
+	
+	public void chunkServerStatistics()
+	{
+		this.fileCollection.clear();
+		fileMonitor fmonitor = new fileMonitor();
+		ArrayList<String> filesList =null;
+		boolean hasfiles = fmonitor.dofileExists();
+
+		if (hasfiles) {
+		
+			filesList=fmonitor.getAllfilesInfoOnChunkServer();
+			this.fileCollection=filesList;
+		}
+	}
+	
 
 
 
@@ -154,6 +170,30 @@ public class ChunkNode implements Node {
 	}
 
 
+	
+	public void sendchunkkinfoToCOntroller() throws NoSuchAlgorithmException, IOException
+	{
+		
+		for(int i=0;i<this.fileCollection.size();i++)
+		{
+			String generatedCHeckSumID="";
+			
+		   TemperingUtil temperU= new TemperingUtil();
+		   
+		   temperU.generateChecksum(fileCollection.get(i));
+		  
+			chunkNodeFileInfoCommand cmd = new chunkNodeFileInfoCommand(this.controllerNodeIP, this.controllerNodePORT,this.chunkNodeIP,this.chunkrNodePORT,fileCollection.get(i), temperU.checkSumID);
+
+			Command resp =new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, cmd.unpack());
+		
+		    Response response = (Response) resp;
+		    
+		    System.out.println(response.getMessage());
+			
+		}
+	
+	}
+	
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
 		System.out.println("Enter Controller node IP-SPACE-PORT");

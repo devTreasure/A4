@@ -15,16 +15,20 @@ public class chunkNodeFileInfoCommand implements Command {
 	public int port;
 	public String chunkIP;
 	public int chunkPORT;
+	public String fileName;
+	public String checksumID;
 
 	public chunkNodeFileInfoCommand() {
 	}
 
-	public chunkNodeFileInfoCommand(String ipAddress, int port,String ChunkipAddress, int Chunkport) {
+	public chunkNodeFileInfoCommand(String ipAddress, int port,String ChunkipAddress, int Chunkport,String fileName,String ChecksumID) {
 		super();
 		this.ipAddress = ipAddress;
 		this.port = port;
 		this.chunkIP=ChunkipAddress;
 		this.chunkPORT=Chunkport;
+		this.fileName=fileName;
+		this.checksumID=ChecksumID;
 	}
 
 	public byte[] unpack() {
@@ -44,6 +48,10 @@ public class chunkNodeFileInfoCommand implements Command {
 			dout.writeInt(chunkIP.length());
 			dout.write(chunkIP.getBytes());
 			dout.writeInt(chunkPORT);
+			dout.writeInt(fileName.length());
+			dout.write(fileName.getBytes());
+			dout.writeInt(checksumID.length());
+			dout.write(checksumID.getBytes());
 			dout.flush();
 			marshalledBytes = baOutputStream.toByteArray();
 		} catch (Exception e) {
@@ -66,6 +74,8 @@ public class chunkNodeFileInfoCommand implements Command {
 			port = din.readInt();
 			chunkIP=readString(din);
 			chunkPORT= din.readInt();
+			fileName= readString(din);
+			checksumID=readString(din);
 
 		} catch (IOException e) {
 			e.printStackTrace();

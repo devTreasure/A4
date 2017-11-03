@@ -24,6 +24,13 @@ public class CommandFactory {
             	 chunkServersRequestCmd.pack(din);
                   cmd = chunkServersRequestCmd;
              } 
+             
+             if (chunkNodeFileInfoCommand.cmd.equals(str_request_type)) {
+            	 chunkNodeFileInfoCommand fileInfoRequestCmd = new chunkNodeFileInfoCommand();
+            	 fileInfoRequestCmd.pack(din);
+                  cmd = fileInfoRequestCmd;
+             } 
+            
             
              else if (Response.cmd.equals(str_request_type)) {
                   Response registerReponse = new Response();
