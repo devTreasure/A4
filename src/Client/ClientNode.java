@@ -113,6 +113,7 @@ public class ClientNode implements Node {
 				continueOperations = false;
 
 			} else if (WRITE_COMMAND.equalsIgnoreCase(inputStr)) {
+				clientnode.writeFiletoChunkNode();
 				System.out.println("Write operation is performed");
 
 			} else if (READ_COMMAND.equalsIgnoreCase(inputStr)) {
@@ -127,6 +128,11 @@ public class ClientNode implements Node {
 
 		}
 
+	}
+
+	public void writeFiletoChunkNode() {
+		FileWriteOperationCommand writeOps=new FileWriteOperationCommand();
+		
 	}
 
 	private void return3AvailableChunkServers(ClientNode clientnode) throws Exception {
