@@ -103,17 +103,18 @@ public class ClientNode implements Node {
 
 	private void sendFileToChunkNode(String filePath) throws Exception {
 		System.out.println(" Writing file to chunk server. " + filePath);
+		File file = new File(filePath);
 		System.out.println("   1. Spliting file.");
-		List<File> chunks = splitFile(filePath);
+		List<File> chunks = splitFile(file);
 		System.out.println("   2. Ask for chunk nodes to controller.");
 		return3AvailableChunkServers();
 		System.out.println("   3. Writing to first chunk server.");
-		writeFiletoChunkNode(chunks);
+		writeFiletoChunkNode(file, chunks);
 	}
 
-	private List<File> splitFile(String filePath) throws Exception {
+	private List<File> splitFile(File inputFile) throws Exception {
 		FileSplit fileSplit = new FileSplit();
-		List<File> chunks = fileSplit.splitFile(new File(filePath));
+		List<File> chunks = fileSplit.splitFile(inputFile);
 		return chunks;
 	}
 
@@ -129,9 +130,10 @@ public class ClientNode implements Node {
 	 *  (FC3, C) and send it ot A
 	 * 
 	 * Chink server will check if i am not the target(using IP + PORT) then write to that target.
+	 * @param file 
 	 * 
 	 */
-	public void writeFiletoChunkNode(List<File> chunks) {
+	public void writeFiletoChunkNode(File file, List<File> chunks) {
 		if(chunkServers.isEmpty()) {
 			System.out.println("Can not find any chunk server.");
 		} else {
@@ -140,7 +142,7 @@ public class ClientNode implements Node {
 			ChunkServer toChunkServer = chunkServers.get(0);
 			
     		for (File eachChunk : chunks) {
-    			ChunkWriteCommand command = new ChunkWriteCommand(chunkServers.get(counter), "", eachChunk.getName(), eachChunk);
+    			ChunkWriteCommand command = new ChunkWriteCommand(chunkServers.get(counter), file.getName(), eachChunk.getName(), eachChunk);
     			sender.sendAndReceiveData(toChunkServer.IP(), toChunkServer.PORT(), command.unpack());
     			if(counter < max-1) {
     				counter++;
