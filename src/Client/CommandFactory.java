@@ -39,6 +39,10 @@ public class CommandFactory {
 				ChunkNodePollingCommand chunkNodePollingCmd = new ChunkNodePollingCommand();
 				chunkNodePollingCmd.pack(din);
 				cmd = chunkNodePollingCmd;
+			} else if(ChunkWriteCommand.cmd.equals(str_request_type)) {
+				ChunkWriteCommand chunkWriteCommand = new ChunkWriteCommand();
+				chunkWriteCommand.pack(din);
+				cmd = chunkWriteCommand;
 			} else {
 				System.out.println("ERROR: UNKNOWN COMMAND. " + str_request_type);
 			}

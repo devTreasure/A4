@@ -8,7 +8,6 @@ public class ClienNodeWorker implements Runnable {
 
    private ServerSocket serverSocket;
    private Node node;
-   public boolean continueFlag = true;
    public TCPSender tcpSender = new TCPSender();
    public ClienNodeWorker(ServerSocket sc,Node node) {
       this.serverSocket = sc;
@@ -19,7 +18,7 @@ public class ClienNodeWorker implements Runnable {
    public void run() {
 	     System.out.println("Started client receiver thread;");
 
-	      while (continueFlag) {
+	      while (ClientNode.continueOperations) {
 	         Socket socket = null;
 	         Command request = null;
 	         try {
@@ -59,14 +58,6 @@ public class ClienNodeWorker implements Runnable {
          
 
 
-   }
-
-   public boolean isContinueFlag() {
-      return continueFlag;
-   }
-
-   public void setContinueFlag(boolean continueFlag) {
-      this.continueFlag = continueFlag;
    }
 
    public Node getNode() {

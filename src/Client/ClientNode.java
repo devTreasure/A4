@@ -1,6 +1,7 @@
 package Client;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -8,7 +9,6 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
-import ChunkServer.ChunkNode;
 import ChunkServer.ChunkServer;
 
 public class ClientNode implements Node {
@@ -17,6 +17,7 @@ public class ClientNode implements Node {
 	public static final String WRITE_COMMAND = "write";
 	public static final String READ_COMMAND = "read";
 	public static final String THREE_SERVERS = "3servers";
+	public static boolean continueOperations = true;
 
 	public String clientNodeIP = "";
 	public int clientNodePORT = -1;
@@ -24,6 +25,7 @@ public class ClientNode implements Node {
 	public String controllerNodeIP = "";
 	public int controllerNodePORT = -1;
 	private List<ChunkServer> chunkServers = new ArrayList<>();
+	private TCPSender sender = new TCPSender();
 
 	public void initializeClientNode() throws IOException {
 
@@ -69,55 +71,86 @@ public class ClientNode implements Node {
 			System.exit(0);
 		}
 
-		boolean continueOperations = true;
-
 		ClientNode clientnode = null;
-
 		clientnode = new ClientNode();
-
 		clientnode.controllerNodeIP = controllerIP;
-
 		clientnode.controllerNodePORT = controllerNodePORT;
 
 		clientnode.initializeClientNode();
 
-		while (continueOperations) {
-			System.out.println("Commands: \n write \n read \n 3servers");
+		while (ClientNode.continueOperations) {
+			System.out.println("Commands: \n write<SPACE>FILE_ABSOLUTE_PATH \n read \n 3servers");
 
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
 			String inputStr = br.readLine();
-
 			System.out.println("Received command is:" + inputStr);
 
 			if (EXIT_COMMAND.equalsIgnoreCase(inputStr)) {
-
 				System.out.println("Exiting.");
-
-				continueOperations = false;
-
-			} else if (WRITE_COMMAND.equalsIgnoreCase(inputStr)) {
-				clientnode.writeFiletoChunkNode();
-				System.out.println("Write operation is performed");
-
+				ClientNode.continueOperations = false;
+			} else if (inputStr.startsWith(WRITE_COMMAND)) {
+				clientnode.sendFileToChunkNode(inputStr.split(" ")[1]);
 			} else if (READ_COMMAND.equalsIgnoreCase(inputStr)) {
 				System.out.println("read operation is performed");
-
 			} else if (THREE_SERVERS.equalsIgnoreCase(inputStr)) {
 				System.out.println("3servers operation is performed");
-				clientnode.return3AvailableChunkServers(clientnode);
+				clientnode.return3AvailableChunkServers();
 			}
 
 		}
 
 	}
 
-	public void writeFiletoChunkNode() {
-		FileWriteOperationCommand writeOps = new FileWriteOperationCommand();
-
+	private void sendFileToChunkNode(String filePath) throws Exception {
+		System.out.println(" Writing file to chunk server. " + filePath);
+		System.out.println("   1. Spliting file.");
+		List<File> chunks = splitFile(filePath);
+		System.out.println("   2. Ask for chunk nodes to controller.");
+		return3AvailableChunkServers();
+		System.out.println("   3. Writing to first chunk server.");
+		writeFiletoChunkNode(chunks);
 	}
 
-	private void return3AvailableChunkServers(ClientNode clientnode) throws Exception {
+	private List<File> splitFile(String filePath) throws Exception {
+		FileSplit fileSplit = new FileSplit();
+		List<File> chunks = fileSplit.splitFile(new File(filePath));
+		return chunks;
+	}
+
+	/**
+	 * Write chunk and target chunk server to first chunk serevr.
+	 * Example: 
+	 * Chunk servers returned are A, B, C
+	 * File Chunnks FC1, FC2, FC3
+	 * 
+	 * Commands will be: (Chunk, TargetChunkServer)
+	 *  (FC1, A) and send it ot A
+	 *  (FC2, B) and send it ot A
+	 *  (FC3, C) and send it ot A
+	 * 
+	 * Chink server will check if i am not the target(using IP + PORT) then write to that target.
+	 * 
+	 */
+	public void writeFiletoChunkNode(List<File> chunks) {
+		if(chunkServers.isEmpty()) {
+			System.out.println("Can not find any chunk server.");
+		} else {
+			int counter = 0;
+			int max = chunkServers.size();
+			ChunkServer toChunkServer = chunkServers.get(0);
+			
+    		for (File eachChunk : chunks) {
+    			ChunkWriteCommand command = new ChunkWriteCommand(chunkServers.get(counter), "", eachChunk.getName(), eachChunk);
+    			sender.sendAndReceiveData(toChunkServer.IP(), toChunkServer.PORT(), command.unpack());
+    			if(counter < max-1) {
+    				counter++;
+    			}
+    		}
+		}
+		
+	}
+
+	private void return3AvailableChunkServers() throws Exception {
 		ChunkServersRequestCommand cmd = new ChunkServersRequestCommand(this.controllerNodeIP, this.controllerNodePORT, 7);
 		Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, cmd.unpack());
 		Response response = (Response) resp;

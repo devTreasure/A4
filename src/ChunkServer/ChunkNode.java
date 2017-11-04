@@ -13,6 +13,7 @@ import Client.ChunkNodeFileInfoCommand;
 import Client.ChunkNodeFileStoreCommand;
 import Client.ChunkNodeWentliveRequest;
 import Client.ChunkServersRequestCommand;
+import Client.ChunkWriteCommand;
 import Client.Command;
 import Client.Node;
 import Client.Response;
@@ -263,9 +264,16 @@ public class ChunkNode implements Node {
 
 		if (command instanceof ChunkNodeFileInfoCommand) {
 			return collectfilesInfo((ChunkNodeFileInfoCommand) command);
+		} else if (command instanceof ChunkWriteCommand) {
+			return chunkReceived((ChunkWriteCommand) command);
 		}
 
-		return null;
+		return new Response(true, "Nothing");
+	}
+
+	private Command chunkReceived(ChunkWriteCommand command) {
+		System.out.println("---" + command);
+		return new Response(true, "File received.");
 	}
 
 }
