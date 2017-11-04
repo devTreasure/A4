@@ -1,19 +1,14 @@
 package Controller;
 
 import java.io.BufferedReader;
-import java.io.Console;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
 import ChunkServer.ChunkServers;
-import ChunkServer.fileMonitor;
 import Client.ChunkServersRequestCommand;
 import Client.Command;
 import Client.Node;
@@ -44,15 +39,7 @@ public class ControllerNode implements Node {
 	private Hashtable<String,String> chunkServerFileInfoCollection = new Hashtable<String,String>();
 	public ControllerNode() {
 
-		// ringNodes = new HashMap<Integer, RingNodes>();
-		// this.objMiddleware = new MiddleWare(this);
-		chunkServerCollection.clear();
-		ChunkServers cs1 = new ChunkServers();
-		cs1.IP = "localhost";
-		cs1.PORT = 45454;
-		chunkServerCollection = new ArrayList<ChunkServers>();
-		chunkServerCollection.add(cs1);
-
+	
 	}
 
 	public void sendtheHealthchekSingnalToCunkServer() {
@@ -68,16 +55,18 @@ public class ControllerNode implements Node {
 	}
 
 	public Command returnTheChunkServer(ChunkServersRequestCommand command) {
+		ChunkServers chunkServer =null;
 		if (chunkServerCollection.size() > 0) {
-			ChunkServers chunkServer = chunkServerCollection.get(0);
+			chunkServer= chunkServerCollection.get(0);
 		}
-		return new Response(true, "Bhavin success");
+		
+		return new Response(true,chunkServer.IP +":"+ String.valueOf(chunkServer.PORT)) ;
 	}
 
 	public Command addChunkinfo2Collection(chunkNodeWentliveRequest command) {
 
 		System.out.println(command.chunkIP + ":" + command.chunkPORT);
-		chunkServerCollection.add(new ChunkServers(command.ipAddress, command.port));
+		chunkServerCollection.add(new ChunkServers(command.chunkIP, command.chunkPORT));
 		System.out.println("Collection size :" + chunkServerCollection.size());
 
 		return new Response(true, "new node is added");

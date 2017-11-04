@@ -1,14 +1,10 @@
 package Client;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class ClientNode implements Node {
 
@@ -19,7 +15,9 @@ public class ClientNode implements Node {
 
 	public String clientNodeIP = "";
 	public int clientNodePORT = -1;
-
+    public String chunkNodeIP="";
+    public int chunkNodePORT=-1;
+    
 	public String controllerNodeIP = "";
 	public int controllerNodePORT = -1;
 
@@ -142,11 +140,15 @@ public class ClientNode implements Node {
 	    System.out.println(response.getMessage());
 	    
 	      if (!response.isSuccess()) {
-	         throw new RuntimeException("Node Id already exist. Please use another id");
+	         throw new RuntimeException("No Chunk Node Available");
 	      }
 	      else
 	      {
-	    	  System.out.println("Registered This time");
+	    	  String[] strchunkNode=  response.getMessage().split(":");
+	    	  this.chunkNodeIP=strchunkNode[0].toString();
+	    	  this.chunkNodePORT= Integer.parseInt(strchunkNode[1].toString());
+	    	  System.out.println("###Available Chunk Nonde###");
+	    	  System.out.println(this.chunkNodeIP + ":::"+this.chunkNodePORT);
 	      }
 	}
 

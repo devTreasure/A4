@@ -12,6 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 import javax.print.DocFlavor.CHAR_ARRAY;
 
@@ -21,6 +22,7 @@ import Client.Node;
 import Client.Response;
 import Client.TCPSender;
 import Client.chunkNodeFileInfoCommand;
+import Client.chunkNodeFileStoreCommand;
 import Client.chunkNodePollingCommand;
 import Client.chunkNodeWentliveRequest;
 
@@ -32,6 +34,10 @@ public class ChunkNode implements Node {
 	public String chunkNodeIP;
 	public int chunkrNodePORT;
 	
+	//Tis collection has the guids for the files being added for the first time
+	
+	private Hashtable<String,String> chunkServerFileIntegretyCheckSumCollection = new Hashtable<String,String>();
+
 	public static final String EXIT_COMMAND = "exit";
 	public static final String WRITE_COMMAND = "write";
 	public static final String READ_COMMAND = "read";
@@ -53,6 +59,29 @@ public class ChunkNode implements Node {
 
 		this.chunkServerStatistics();
 	}
+	
+	public Command storetheFile(chunkNodeFileStoreCommand command)
+	{
+		fileMonitor fmonitor = new fileMonitor();
+		ArrayList<String> filesList =null;
+		boolean hasfiles = fmonitor.dofileExists();
+
+		if (hasfiles) {
+		    StringBuilder builder = new StringBuilder();
+			filesList=fmonitor.getAllfilesInfoOnChunkServer();
+			String fileString ="";
+			 for (int i = 0; i < filesList.size(); i++) {
+				builder.append(filesList.get(i).trim()).append(":");
+			}
+			return new Response(true, builder.toString());
+		}
+		else
+		{
+
+		return new Response(true, "Nofiles");
+		}
+	}
+	
 	public Command collectfilesInfo(chunkNodeFileInfoCommand command) {
 		fileMonitor fmonitor = new fileMonitor();
 		ArrayList<String> filesList =null;
@@ -162,8 +191,6 @@ public class ChunkNode implements Node {
 	public void sendtheChunkNodeinfotoController() throws Exception {
 		// TODO Auto-generated method stub
 		chunkNodeWentliveRequest livereq = new chunkNodeWentliveRequest(this.controllerNodeIP,this.controllerNodePORT,this.chunkNodeIP,this.chunkrNodePORT);
-		//Socket sc = new Socket(this.controllerNodeIP, this.controllerNodePORT);
-	    //new TCPSender().sendData(sc, livereq.unpack());
 		Command resp=new TCPSender().sendAndReceiveData(this.controllerNodeIP,this.controllerNodePORT, livereq.unpack());
 		Response response = (Response) resp;
 	    System.out.println(response.getMessage());
@@ -173,6 +200,15 @@ public class ChunkNode implements Node {
 	
 	public void sendchunkkinfoToCOntroller() throws NoSuchAlgorithmException, IOException
 	{
+		//Update the file lists to check if there are any new Files
+		
+		//it will return File collection arraylist with file names
+		
+		//How to maintain checksum for the all files for the first time and compare here it with method
+		
+		
+		chunkServerStatistics();
+		
 		
 		for(int i=0;i<this.fileCollection.size();i++)
 		{
@@ -180,7 +216,7 @@ public class ChunkNode implements Node {
 			
 		   TemperingUtil temperU= new TemperingUtil();
 		   
-		   temperU.generateChecksum(fileCollection.get(i));
+		   temperU.generateChecksum(this.fileCollection.get(i));
 		  
 			chunkNodeFileInfoCommand cmd = new chunkNodeFileInfoCommand(this.controllerNodeIP, this.controllerNodePORT,this.chunkNodeIP,this.chunkrNodePORT,fileCollection.get(i), temperU.checkSumID);
 
