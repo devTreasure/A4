@@ -20,266 +20,252 @@ import Client.TCPSender;
 
 public class ChunkNode implements Node {
 
-   public String controllerNodeIP;
-   public int controllerNodePORT;
+	public String controllerNodeIP;
+	public int controllerNodePORT;
+
+	public String chunkNodeIP;
+	public int chunkrNodePORT;
+
+	// Tis collection has the guids for the files being added for the first time
+
+	private Hashtable<String, String> chunkServerFileIntegretyCheckSumCollection = new Hashtable<String, String>();
+
+	public static final String EXIT_COMMAND = "exit";
+	public static final String WRITE_COMMAND = "write";
+	public static final String READ_COMMAND = "read";
+	public String str_getChunkServer_Request = "GET_3_CHUNK_SERVERS";
+	public String chunkserverNodeName;
+	public ServerSocket serverSocket;
+	public String filePATH = "D:\\chunkStorage";
+	public ArrayList<String> fileCollection = new ArrayList<String>();
+
+	public String str_SUCC_REQUEST = "SUCC_REQUEST";
+	public String str_RANDOM_REQUEST = "RANDOM_NODE_REQUEST";
+	public String str_RANDOM_RESPONSE = "RANDOM_NODE_RESPONSE";
+	public String str_REG_REQUEST = "REG_REQUEST";
+
+	public String str_MAJOR_HEARTBEAT_REQUEST = "MAJOR_HB";
+	public String str_MINOR_HEARTBEAT_REQUEST = "MINOR_HB";
+	private TCPSender sender = new TCPSender();
+
+	public ChunkNode() {
+
+		this.chunkServerStatistics();
+	}
+
+	public Command storetheFile(ChunkNodeFileStoreCommand command) {
+		FileMonitor fmonitor = new FileMonitor();
+		ArrayList<String> filesList = null;
+		boolean hasfiles = fmonitor.dofileExists();
+
+		if (hasfiles) {
+			StringBuilder builder = new StringBuilder();
+			filesList = fmonitor.getAllfilesInfoOnChunkServer();
+			String fileString = "";
+			for (int i = 0; i < filesList.size(); i++) {
+				builder.append(filesList.get(i).trim()).append(":");
+			}
+			return new Response(true, builder.toString());
+		} else {
+
+			return new Response(true, "Nofiles");
+		}
+	}
+
+	public Command collectfilesInfo(ChunkNodeFileInfoCommand command) {
+		FileMonitor fmonitor = new FileMonitor();
+		ArrayList<String> filesList = null;
+		boolean hasfiles = fmonitor.dofileExists();
+
+		if (hasfiles) {
+			StringBuilder builder = new StringBuilder();
+			filesList = fmonitor.getAllfilesInfoOnChunkServer();
+			String fileString = "";
+			for (int i = 0; i < filesList.size(); i++) {
+				builder.append(filesList.get(i).trim()).append(":");
+			}
+			return new Response(true, builder.toString());
+		} else {
+
+			return new Response(true, "Nofiles");
+		}
+	}
 
-   public String chunkNodeIP;
-   public int chunkrNodePORT;
+	public void sendtheHealthchekSingnalToCunkServer() {
+		//
+	}
 
-   // Tis collection has the guids for the files being added for the first time
+	public void chunkServerStatistics() {
+		this.fileCollection.clear();
+		FileMonitor fmonitor = new FileMonitor();
+		ArrayList<String> filesList = null;
+		boolean hasfiles = fmonitor.dofileExists();
 
-   private Hashtable<String, String> chunkServerFileIntegretyCheckSumCollection = new Hashtable<String, String>();
-
-   public static final String EXIT_COMMAND = "exit";
-   public static final String WRITE_COMMAND = "write";
-   public static final String READ_COMMAND = "read";
-   public String str_getChunkServer_Request = "GET_3_CHUNK_SERVERS";
-   public String chunkserverNodeName;
-   public ServerSocket serverSocket;
-   public String filePATH = "D:\\chunkStorage";
-   public ArrayList<String> fileCollection = new ArrayList<String>();
-
-   public String str_SUCC_REQUEST = "SUCC_REQUEST";
-   public String str_RANDOM_REQUEST = "RANDOM_NODE_REQUEST";
-   public String str_RANDOM_RESPONSE = "RANDOM_NODE_RESPONSE";
-   public String str_REG_REQUEST = "REG_REQUEST";
-
-   public String str_MAJOR_HEARTBEAT_REQUEST = "MAJOR_HB";
-   public String str_MINOR_HEARTBEAT_REQUEST = "MINOR_HB";
-
-   public ChunkNode() {
-
-      this.chunkServerStatistics();
-   }
-
-   public Command storetheFile(ChunkNodeFileStoreCommand command) {
-      FileMonitor fmonitor = new FileMonitor();
-      ArrayList<String> filesList = null;
-      boolean hasfiles = fmonitor.dofileExists();
-
-      if (hasfiles) {
-         StringBuilder builder = new StringBuilder();
-         filesList = fmonitor.getAllfilesInfoOnChunkServer();
-         String fileString = "";
-         for (int i = 0; i < filesList.size(); i++) {
-            builder.append(filesList.get(i).trim()).append(":");
-         }
-         return new Response(true, builder.toString());
-      } else {
-
-         return new Response(true, "Nofiles");
-      }
-   }
-
-   public Command collectfilesInfo(ChunkNodeFileInfoCommand command) {
-      FileMonitor fmonitor = new FileMonitor();
-      ArrayList<String> filesList = null;
-      boolean hasfiles = fmonitor.dofileExists();
-
-      if (hasfiles) {
-         StringBuilder builder = new StringBuilder();
-         filesList = fmonitor.getAllfilesInfoOnChunkServer();
-         String fileString = "";
-         for (int i = 0; i < filesList.size(); i++) {
-            builder.append(filesList.get(i).trim()).append(":");
-         }
-         return new Response(true, builder.toString());
-      } else {
+		if (hasfiles) {
 
-         return new Response(true, "Nofiles");
-      }
-   }
+			filesList = fmonitor.getAllfilesInfoOnChunkServer();
+			this.fileCollection = filesList;
+		}
+	}
 
+	public void get3AavailableChunkServers() {
 
-   public void sendtheHealthchekSingnalToCunkServer() {
-      //
-   }
+	}
 
-   public void chunkServerStatistics() {
-      this.fileCollection.clear();
-      FileMonitor fmonitor = new FileMonitor();
-      ArrayList<String> filesList = null;
-      boolean hasfiles = fmonitor.dofileExists();
+	public Command registerNode(ChunkServersRequestCommand command) throws Exception {
 
-      if (hasfiles) {
+		Response response = null;
+		if (command == null) {
+			response = new Response(true, "success Bhavin !!");
+		}
 
-         filesList = fmonitor.getAllfilesInfoOnChunkServer();
-         this.fileCollection = filesList;
-      }
-   }
+		return response;
+	}
 
+	private void intializeChunkNode() throws Exception {
+		// 1.Chunk Node is alive
+		ServerSocket sc = new ServerSocket(0);
+		System.out.println("Resolved Host name is :");
+		System.out.println(sc.getInetAddress().getLocalHost().getHostAddress());
+		System.out.println(InetAddress.getLocalHost().getHostName());
 
+		this.chunkNodeIP = InetAddress.getLocalHost().getHostAddress();
+		this.chunkrNodePORT = sc.getLocalPort();
+		this.serverSocket = sc;
 
-   public void get3AavailableChunkServers() {
+		// 2. Start worker thread
+		ChunkNodeWorker chunkNodeWorker = new ChunkNodeWorker(sc, this);
+		Thread t = new Thread(chunkNodeWorker);
+		t.start();
 
-   }
+		// 3. start Minor pulse thread
+		Chunkpulse30Sec p30 = new Chunkpulse30Sec(this);
+		Thread t30sec = new Thread(p30);
+		t30sec.start();
 
-   public Command registerNode(ChunkServersRequestCommand command) throws Exception {
+		// 4. start Major pulse thread
+		Chunkpulse300Sec p300 = new Chunkpulse300Sec(this);
+		Thread t300sec = new Thread(p300);
+		t300sec.start();
 
-      Response response = null;
-      if (command == null) {
-         response = new Response(true, "success Bhavin !!");
-      }
+		System.out.println(" Chunk node is hoasted at : " + this.chunkNodeIP + "  " + " Listenning port : " + sc.getLocalPort());
 
-      return response;
-   }
+		// 5. Send the controller
+		sendtheChunkNodeinfotoController();
+	}
 
-   private void intializeChunkNode() throws Exception {
-      // 1.Chunk Node is alive
-      ServerSocket sc = new ServerSocket(0);
-      System.out.println("Resolved Host name is :");
-      System.out.println(sc.getInetAddress().getLocalHost().getHostAddress());
-      System.out.println(InetAddress.getLocalHost().getHostName());
+	public void sendtheChunkNodeinfotoController() throws Exception {
+		// TODO Auto-generated method stub
+		ChunkNodeWentliveRequest livereq = new ChunkNodeWentliveRequest(this.controllerNodeIP, this.controllerNodePORT, this.chunkNodeIP, this.chunkrNodePORT);
+		Command resp = sender.sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, livereq.unpack());
+		Response response = (Response) resp;
+		System.out.println(response.getMessage());
+	}
 
-      this.chunkNodeIP = InetAddress.getLocalHost().getHostAddress();
-      this.chunkrNodePORT = sc.getLocalPort();
-      this.serverSocket = sc;
+	public void sendchunkkinfoToCOntroller() throws NoSuchAlgorithmException, IOException {
+		// Update the file lists to check if there are any new Files
 
-      // 2. Start worker thread
-      ChunkNodeWorker chunkNodeWorker = new ChunkNodeWorker(sc, this);
-      Thread t = new Thread(chunkNodeWorker);
-      t.start();
+		// it will return File collection arraylist with file names
 
-      // 3. start Minor pulse thread
-      Chunkpulse30Sec p30 = new Chunkpulse30Sec(this);
-      Thread t30sec = new Thread(p30);
-      t30sec.start();
+		// How to maintain checksum for the all files for the first time and
+		// compare here it with
+		// method
 
-      // 4. start Major pulse thread
-      Chunkpulse300Sec p300 = new Chunkpulse300Sec(this);
-      Thread t300sec = new Thread(p300);
-      t300sec.start();
+		chunkServerStatistics();
 
-      System.out.println(" Chunk node is hoasted at : " + this.chunkNodeIP + "  "
-            + " Listenning port : " + sc.getLocalPort());
+		for (int i = 0; i < this.fileCollection.size(); i++) {
+			String generatedCHeckSumID = "";
 
-      // 5. Send the controller
-      sendtheChunkNodeinfotoController();
-   }
+			TemperingUtil temperU = new TemperingUtil();
 
-   public void sendtheChunkNodeinfotoController() throws Exception {
-      // TODO Auto-generated method stub
-      ChunkNodeWentliveRequest livereq = new ChunkNodeWentliveRequest(this.controllerNodeIP,
-            this.controllerNodePORT, this.chunkNodeIP, this.chunkrNodePORT);
-      Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP,
-            this.controllerNodePORT, livereq.unpack());
-      Response response = (Response) resp;
-      System.out.println(response.getMessage());
-   }
+			temperU.generateChecksum(this.fileCollection.get(i));
 
-   public void sendchunkkinfoToCOntroller() throws NoSuchAlgorithmException, IOException {
-      // Update the file lists to check if there are any new Files
+			ChunkNodeFileInfoCommand cmd = new ChunkNodeFileInfoCommand(this.controllerNodeIP, this.controllerNodePORT, this.chunkNodeIP, this.chunkrNodePORT, fileCollection.get(i),
+			        temperU.checkSumID);
 
-      // it will return File collection arraylist with file names
+			Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, cmd.unpack());
 
-      // How to maintain checksum for the all files for the first time and compare here it with
-      // method
+			Response response = (Response) resp;
 
+			System.out.println(response.getMessage());
 
-      chunkServerStatistics();
+		}
 
+	}
 
-      for (int i = 0; i < this.fileCollection.size(); i++) {
-         String generatedCHeckSumID = "";
+	public static void main(String[] args) throws Exception {
+		// TODO Auto-generated method stub
+		System.out.println("Enter Controller node IP-SPACE-PORT");
 
-         TemperingUtil temperU = new TemperingUtil();
+		String[] strSplit = null;
 
-         temperU.generateChecksum(this.fileCollection.get(i));
+		int controllerNodePORT = 0;
+		String controllerIP = "";
 
-         ChunkNodeFileInfoCommand cmd = new ChunkNodeFileInfoCommand(this.controllerNodeIP,
-               this.controllerNodePORT, this.chunkNodeIP, this.chunkrNodePORT,
-               fileCollection.get(i), temperU.checkSumID);
+		if (args.length < 2) {
+			System.out.println("Exa: java A2.Node <Controller NODE IP> <Controller NODE PORT>");
+			System.exit(0);
+		}
 
-         Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP,
-               this.controllerNodePORT, cmd.unpack());
+		try {
+			controllerIP = args[0];
+			InetAddress ipaddress = InetAddress.getLocalHost();// InetAddress.getByName(strIP);
+			System.out.println("IP address: " + ipaddress.getHostAddress());
+			controllerNodePORT = Integer.parseInt(args[1]);
 
-         Response response = (Response) resp;
+		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
+			System.exit(0);
+		}
 
-         System.out.println(response.getMessage());
+		ChunkNode chunkNode = new ChunkNode();
 
-      }
+		chunkNode.controllerNodeIP = controllerIP;
+		chunkNode.controllerNodePORT = controllerNodePORT;
 
-   }
+		chunkNode.intializeChunkNode();
 
-   public static void main(String[] args) throws Exception {
-      // TODO Auto-generated method stub
-      System.out.println("Enter Controller node IP-SPACE-PORT");
+		boolean continueOperations = true;
 
-      String[] strSplit = null;
+		while (continueOperations) {
 
-      int controllerNodePORT = 0;
-      String controllerIP = "";
+			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
+			String exitStr = br.readLine();
 
-      if (args.length < 2) {
-         System.out.println("Exa: java A2.Node <Controller NODE IP> <Controller NODE PORT>");
-         System.exit(0);
-      }
+			System.out.println("Received command is:" + exitStr);
 
-      try {
-         controllerIP = args[0];
-         InetAddress ipaddress = InetAddress.getLocalHost();// InetAddress.getByName(strIP);
-         System.out.println("IP address: " + ipaddress.getHostAddress());
-         controllerNodePORT = Integer.parseInt(args[1]);
+			if (EXIT_COMMAND.equalsIgnoreCase(exitStr)) {
 
-      } catch (Exception e) {
-         System.out.println("Error: " + e.getMessage());
-         System.exit(0);
-      }
+				System.out.println("Exiting.");
 
+				continueOperations = false;
 
+			} else if (WRITE_COMMAND.equalsIgnoreCase("write")) {
+				System.out.println("Write operation is performed");
+				// return3AvailableChunkServers(controllerNode);
 
-      ChunkNode chunkNode = new ChunkNode();
+			} else if (READ_COMMAND.equalsIgnoreCase("read")) {
+				System.out.println("read operation is performed");
 
-      chunkNode.controllerNodeIP = controllerIP;
-      chunkNode.controllerNodePORT = controllerNodePORT;
+			}
 
-      chunkNode.intializeChunkNode();
+			else if ("pull-traffic-summary".equalsIgnoreCase(exitStr)) {
+				// collatorNode.trafficSummary();
+			}
+		}
 
+		System.out.println("Bye.");
+	}
 
-      boolean continueOperations = true;
+	@Override
+	public Command notify(Command command) throws Exception {
 
-      while (continueOperations) {
+		if (command instanceof ChunkNodeFileInfoCommand) {
+			return collectfilesInfo((ChunkNodeFileInfoCommand) command);
+		}
 
-         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-         String exitStr = br.readLine();
-
-         System.out.println("Received command is:" + exitStr);
-
-         if (EXIT_COMMAND.equalsIgnoreCase(exitStr)) {
-
-            System.out.println("Exiting.");
-
-            continueOperations = false;
-
-         } else if (WRITE_COMMAND.equalsIgnoreCase("write")) {
-            System.out.println("Write operation is performed");
-            // return3AvailableChunkServers(controllerNode);
-
-         } else if (READ_COMMAND.equalsIgnoreCase("read")) {
-            System.out.println("read operation is performed");
-
-         }
-
-         else if ("pull-traffic-summary".equalsIgnoreCase(exitStr)) {
-            // collatorNode.trafficSummary();
-         }
-      }
-
-      System.out.println("Bye.");
-   }
-
-
-   @Override
-   public Command notify(Command command) throws Exception {
-
-      if (command instanceof ChunkNodeFileInfoCommand) {
-         return collectfilesInfo((ChunkNodeFileInfoCommand) command);
-      }
-
-      return null;
-   }
-
+		return null;
+	}
 
 }

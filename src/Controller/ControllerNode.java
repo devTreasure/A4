@@ -6,15 +6,18 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Random;
+import java.util.Set;
 
 import ChunkServer.ChunkServers;
+import Client.ChunkNodeFileInfoCommand;
+import Client.ChunkNodeWentliveRequest;
 import Client.ChunkServersRequestCommand;
 import Client.Command;
 import Client.Node;
 import Client.Response;
-import Client.ChunkNodeFileInfoCommand;
-import Client.ChunkNodeWentliveRequest;
 
 public class ControllerNode implements Node {
 
@@ -37,7 +40,7 @@ public class ControllerNode implements Node {
 	public String str_MINOR_HEARTBEAT_REQUEST = "MINOR_HB";
 	private ControllerNodeWorker controllerReceiverWorker;
 
-	private ArrayList<ChunkServers> chunkServerCollection = new ArrayList<ChunkServers>();
+	private Set<ChunkServers> chunkServerCollection = new HashSet<ChunkServers>();
 	private Hashtable<String, String> chunkServerFileInfoCollection = new Hashtable<String, String>();
 
 	public ControllerNode() {
@@ -52,30 +55,53 @@ public class ControllerNode implements Node {
 		// collect the available chunk servers
 	}
 
-	public ArrayList<ChunkServers> get3AavailableChunkServers() {
-		return chunkServerCollection;
-	}
-
-	public Command returnTheChunkServer(ChunkServersRequestCommand command) {
-		ChunkServers chunkServer = null;
-		if (chunkServerCollection.size() > 0) {
-			chunkServer = chunkServerCollection.get(0);
+	public Command returnTheChunkServer() {
+		Set<ChunkServers> nodes = new HashSet<ChunkServers>();
+		
+		int chunkServersCount = chunkServerCollection.size();
+		if(chunkServersCount == 0) {
+			return new Response(false, "No chunk servers available");
+		} else if (chunkServersCount > 1 && chunkServersCount <= 3) {
+			nodes.addAll(chunkServerCollection);
+		} else {
+			ArrayList<ChunkServers> chunkNodesAsList = new ArrayList<ChunkServers>(chunkServerCollection);
+			Random random = new Random();
+			for(int i=0;i < 10; i++) {
+				int nextInt = random.nextInt(chunkServersCount);
+				nodes.add(chunkNodesAsList.get(nextInt));
+				if(nodes.size()==3) {
+					break;
+				}
+			}
 		}
-
-		return new Response(true, chunkServer.IP + ":" + String.valueOf(chunkServer.PORT));
+		
+		String message = ""; 
+		for (ChunkServers eachChunkServer : nodes) {
+			message += eachChunkServer.IP() + ":" + String.valueOf(eachChunkServer.PORT());
+			message += ",";
+		}
+		
+		Response response = null;
+		if(message.trim().isEmpty()) {
+			response = new Response(false, "No chunk servers available");
+		} else {
+			response = new Response(true, message);
+		}
+		
+		return response;
 	}
 
 	public Command addChunkinfo2Collection(ChunkNodeWentliveRequest command) {
-
 		System.out.println(command.chunkIP + ":" + command.chunkPORT);
 		chunkServerCollection.add(new ChunkServers(command.chunkIP, command.chunkPORT));
 		System.out.println("Collection size :" + chunkServerCollection.size());
-
-		return new Response(true, "new node is added");
+		return new Response(true, "Chunk node is added");
 	}
 
 	public Command collectchunkNodeFileDetails(ChunkNodeFileInfoCommand command) {
 
+		
+		
 		System.out.println(command.fileName + ":" + command.checksumID);
 		chunkServerFileInfoCollection.put(command.fileName, command.checksumID);
 		System.out.println("File Collection size :" + chunkServerFileInfoCollection.size());
@@ -131,15 +157,14 @@ public class ControllerNode implements Node {
 	}
 
 	public static void return3AvailableChunkServers(ControllerNode controllerNode) {
-		// TODO Auto-generated method stub
-		controllerNode.get3AavailableChunkServers();
+		controllerNode.returnTheChunkServer();
 	}
-
+	
 	@Override
 	public Command notify(Command command) throws Exception {
 		// TODO Auto-generated method stub
 		if (command instanceof ChunkServersRequestCommand) {
-			return returnTheChunkServer((ChunkServersRequestCommand) command);
+			return returnTheChunkServer();
 		}
 
 		if (command instanceof ChunkNodeWentliveRequest) {

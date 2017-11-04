@@ -5,6 +5,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.List;
+
+import ChunkServer.ChunkNode;
+import ChunkServer.ChunkServers;
 
 public class ClientNode implements Node {
 
@@ -18,6 +23,7 @@ public class ClientNode implements Node {
 
 	public String controllerNodeIP = "";
 	public int controllerNodePORT = -1;
+	private List<ChunkServers> chunkServers = new ArrayList<>();
 
 	public void initializeClientNode() throws IOException {
 
@@ -114,19 +120,20 @@ public class ClientNode implements Node {
 	private void return3AvailableChunkServers(ClientNode clientnode) throws Exception {
 		ChunkServersRequestCommand cmd = new ChunkServersRequestCommand(this.controllerNodeIP, this.controllerNodePORT, 7);
 		Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, cmd.unpack());
-
 		Response response = (Response) resp;
-
 		System.out.println(response.getMessage());
-
 		if (!response.isSuccess()) {
 			throw new RuntimeException("No Chunk Node Available");
 		} else {
-			String[] strchunkNode = response.getMessage().split(":");
-//			this.chunkNodeIP = strchunkNode[0].toString();
-//			this.chunkNodePORT = Integer.parseInt(strchunkNode[1].toString());
-//			System.out.println("###Available Chunk Nonde###");
-//			System.out.println(this.chunkNodeIP + ":::" + this.chunkNodePORT);
+			String[] strchunkNodes = response.getMessage().split(",");
+			for (String eachValue : strchunkNodes) {
+				if(eachValue!=null && !eachValue.trim().isEmpty()) {
+					String[] data = eachValue.split(":");
+					ChunkServers srvr = new ChunkServers(data[0], Integer.parseInt(data[1]));
+					System.out.println("Chunk Server: " + srvr);
+					chunkServers.add(srvr);
+				}
+			}
 		}
 	}
 
