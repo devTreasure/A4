@@ -25,8 +25,8 @@ public class CommandFactory {
                   cmd = chunkServersRequestCmd;
              } 
              
-             if (chunkNodeFileInfoCommand.cmd.equals(str_request_type)) {
-            	 chunkNodeFileInfoCommand fileInfoRequestCmd = new chunkNodeFileInfoCommand();
+             if (ChunkNodeFileInfoCommand.cmd.equals(str_request_type)) {
+            	 ChunkNodeFileInfoCommand fileInfoRequestCmd = new ChunkNodeFileInfoCommand();
             	 fileInfoRequestCmd.pack(din);
                   cmd = fileInfoRequestCmd;
              } 
@@ -38,16 +38,16 @@ public class CommandFactory {
                   cmd = registerReponse;
              }
              
-             else if(chunkNodeWentliveRequest.cmd.equals(str_request_type))
+             else if(ChunkNodeWentliveRequest.cmd.equals(str_request_type))
              {
-            	 chunkNodeWentliveRequest chunkNodeAliveCmd = new chunkNodeWentliveRequest();
+            	 ChunkNodeWentliveRequest chunkNodeAliveCmd = new ChunkNodeWentliveRequest();
             	 chunkNodeAliveCmd.pack(din);
             	 cmd =chunkNodeAliveCmd;
              }
              
-             else if(chunkNodePollingCommand.cmd.equals(str_request_type))
+             else if(ChunkNodePollingCommand.cmd.equals(str_request_type))
              {
-            	 chunkNodePollingCommand chunkNodePollingCmd = new chunkNodePollingCommand();
+            	 ChunkNodePollingCommand chunkNodePollingCmd = new ChunkNodePollingCommand();
             	 chunkNodePollingCmd.pack(din);
             	 cmd =chunkNodePollingCmd;
              }

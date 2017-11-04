@@ -8,8 +8,8 @@ import Client.ChunkServersRequestCommand;
 import Client.Command;
 import Client.Response;
 import Client.TCPSender;
-import Client.chunkNodeFileInfoCommand;
-import Client.chunkNodePollingCommand;
+import Client.ChunkNodeFileInfoCommand;
+import Client.ChunkNodePollingCommand;
 
 public class Chunkpulse30Sec  implements Runnable{
 	

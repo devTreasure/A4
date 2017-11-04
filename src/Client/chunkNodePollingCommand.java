@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class chunkNodePollingCommand implements Command {
+public class ChunkNodePollingCommand implements Command {
 	
 	
 	public static final String cmd = "CMD_CHUNK_NODE_POLLING_INFO";
@@ -18,10 +18,10 @@ public class chunkNodePollingCommand implements Command {
 	public int chunkPORT;
 	public String fileNames;
 
-	public chunkNodePollingCommand() {
+	public ChunkNodePollingCommand() {
 	}
 
-	public chunkNodePollingCommand(String ipAddress, int port,String fileNames) {
+	public ChunkNodePollingCommand(String ipAddress, int port,String fileNames) {
 		super();
 		this.ipAddress = ipAddress;
 		this.port = port;

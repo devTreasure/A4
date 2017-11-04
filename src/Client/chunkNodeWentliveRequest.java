@@ -6,7 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class chunkNodeWentliveRequest implements Command {
+public class ChunkNodeWentliveRequest implements Command {
 	public static final String cmd = "CMD_CHUNK_NODE_WENT_LIVE";
 
 	public String ipAddress;
@@ -14,10 +14,10 @@ public class chunkNodeWentliveRequest implements Command {
 	public String chunkIP;
 	public int chunkPORT;
 
-	public chunkNodeWentliveRequest() {
+	public ChunkNodeWentliveRequest() {
 	}
 
-	public chunkNodeWentliveRequest(String ipAddress, int port,String ChunkipAddress, int Chunkport) {
+	public ChunkNodeWentliveRequest(String ipAddress, int port,String ChunkipAddress, int Chunkport) {
 		super();
 		this.ipAddress = ipAddress;
 		this.port = port;

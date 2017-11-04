@@ -21,10 +21,10 @@ import Client.Command;
 import Client.Node;
 import Client.Response;
 import Client.TCPSender;
-import Client.chunkNodeFileInfoCommand;
-import Client.chunkNodeFileStoreCommand;
-import Client.chunkNodePollingCommand;
-import Client.chunkNodeWentliveRequest;
+import Client.ChunkNodeFileInfoCommand;
+import Client.ChunkNodeFileStoreCommand;
+import Client.ChunkNodePollingCommand;
+import Client.ChunkNodeWentliveRequest;
 
 public class ChunkNode implements Node {
 
@@ -60,9 +60,9 @@ public class ChunkNode implements Node {
 		this.chunkServerStatistics();
 	}
 	
-	public Command storetheFile(chunkNodeFileStoreCommand command)
+	public Command storetheFile(ChunkNodeFileStoreCommand command)
 	{
-		fileMonitor fmonitor = new fileMonitor();
+		FileMonitor fmonitor = new FileMonitor();
 		ArrayList<String> filesList =null;
 		boolean hasfiles = fmonitor.dofileExists();
 
@@ -82,8 +82,8 @@ public class ChunkNode implements Node {
 		}
 	}
 	
-	public Command collectfilesInfo(chunkNodeFileInfoCommand command) {
-		fileMonitor fmonitor = new fileMonitor();
+	public Command collectfilesInfo(ChunkNodeFileInfoCommand command) {
+		FileMonitor fmonitor = new FileMonitor();
 		ArrayList<String> filesList =null;
 		boolean hasfiles = fmonitor.dofileExists();
 
@@ -111,7 +111,7 @@ public class ChunkNode implements Node {
 	public void chunkServerStatistics()
 	{
 		this.fileCollection.clear();
-		fileMonitor fmonitor = new fileMonitor();
+		FileMonitor fmonitor = new FileMonitor();
 		ArrayList<String> filesList =null;
 		boolean hasfiles = fmonitor.dofileExists();
 
@@ -190,7 +190,7 @@ public class ChunkNode implements Node {
 
 	public void sendtheChunkNodeinfotoController() throws Exception {
 		// TODO Auto-generated method stub
-		chunkNodeWentliveRequest livereq = new chunkNodeWentliveRequest(this.controllerNodeIP,this.controllerNodePORT,this.chunkNodeIP,this.chunkrNodePORT);
+		ChunkNodeWentliveRequest livereq = new ChunkNodeWentliveRequest(this.controllerNodeIP,this.controllerNodePORT,this.chunkNodeIP,this.chunkrNodePORT);
 		Command resp=new TCPSender().sendAndReceiveData(this.controllerNodeIP,this.controllerNodePORT, livereq.unpack());
 		Response response = (Response) resp;
 	    System.out.println(response.getMessage());
@@ -218,7 +218,7 @@ public class ChunkNode implements Node {
 		   
 		   temperU.generateChecksum(this.fileCollection.get(i));
 		  
-			chunkNodeFileInfoCommand cmd = new chunkNodeFileInfoCommand(this.controllerNodeIP, this.controllerNodePORT,this.chunkNodeIP,this.chunkrNodePORT,fileCollection.get(i), temperU.checkSumID);
+			ChunkNodeFileInfoCommand cmd = new ChunkNodeFileInfoCommand(this.controllerNodeIP, this.controllerNodePORT,this.chunkNodeIP,this.chunkrNodePORT,fileCollection.get(i), temperU.checkSumID);
 
 			Command resp =new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, cmd.unpack());
 		
@@ -305,9 +305,9 @@ public class ChunkNode implements Node {
 		// TODO Auto-generated method stub
 		
 		
-		if(command instanceof chunkNodeFileInfoCommand)
+		if(command instanceof ChunkNodeFileInfoCommand)
 		{
-			return collectfilesInfo((chunkNodeFileInfoCommand) command);
+			return collectfilesInfo((ChunkNodeFileInfoCommand) command);
 		}
 	
 		return null;

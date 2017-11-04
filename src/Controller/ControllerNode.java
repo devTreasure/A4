@@ -13,8 +13,8 @@ import Client.ChunkServersRequestCommand;
 import Client.Command;
 import Client.Node;
 import Client.Response;
-import Client.chunkNodeFileInfoCommand;
-import Client.chunkNodeWentliveRequest;
+import Client.ChunkNodeFileInfoCommand;
+import Client.ChunkNodeWentliveRequest;
 
 public class ControllerNode implements Node {
 
@@ -63,7 +63,7 @@ public class ControllerNode implements Node {
 		return new Response(true,chunkServer.IP +":"+ String.valueOf(chunkServer.PORT)) ;
 	}
 
-	public Command addChunkinfo2Collection(chunkNodeWentliveRequest command) {
+	public Command addChunkinfo2Collection(ChunkNodeWentliveRequest command) {
 
 		System.out.println(command.chunkIP + ":" + command.chunkPORT);
 		chunkServerCollection.add(new ChunkServers(command.chunkIP, command.chunkPORT));
@@ -73,7 +73,7 @@ public class ControllerNode implements Node {
 	}
 	
 	
-	public Command collectchunkNodeFileDetails(chunkNodeFileInfoCommand command) {
+	public Command collectchunkNodeFileDetails(ChunkNodeFileInfoCommand command) {
 
 		System.out.println(command.fileName + ":" + command.checksumID);
 		chunkServerFileInfoCollection.put(command.fileName, command.checksumID);
@@ -167,13 +167,13 @@ public class ControllerNode implements Node {
 			return returnTheChunkServer((ChunkServersRequestCommand) command);
 		}
 
-		if (command instanceof chunkNodeWentliveRequest) {
-			return addChunkinfo2Collection((chunkNodeWentliveRequest) command);
+		if (command instanceof ChunkNodeWentliveRequest) {
+			return addChunkinfo2Collection((ChunkNodeWentliveRequest) command);
 		}
 	
 		
-		if (command instanceof chunkNodeFileInfoCommand) {
-			return collectchunkNodeFileDetails((chunkNodeFileInfoCommand) command);
+		if (command instanceof ChunkNodeFileInfoCommand) {
+			return collectchunkNodeFileDetails((ChunkNodeFileInfoCommand) command);
 		}
 	
 		/*

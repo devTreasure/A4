@@ -6,7 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class chunkNodeFileInfoCommand implements Command {
+public class ChunkNodeFileInfoCommand implements Command {
 	
 	
 	public static final String cmd = "CMD_CHUNK_NODE_FILE_INFO";
@@ -18,10 +18,10 @@ public class chunkNodeFileInfoCommand implements Command {
 	public String fileName;
 	public String checksumID;
 
-	public chunkNodeFileInfoCommand() {
+	public ChunkNodeFileInfoCommand() {
 	}
 
-	public chunkNodeFileInfoCommand(String ipAddress, int port,String ChunkipAddress, int Chunkport,String fileName,String ChecksumID) {
+	public ChunkNodeFileInfoCommand(String ipAddress, int port,String ChunkipAddress, int Chunkport,String fileName,String ChecksumID) {
 		super();
 		this.ipAddress = ipAddress;
 		this.port = port;

@@ -6,14 +6,14 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
-public class fileMonitor {
+public class FileMonitor {
 
 	public Hashtable<String, String> filesHTCollection = new Hashtable<String, String>();
 	public boolean hasFiles = false;
 
 	public ArrayList<String> fileslist = new ArrayList<String>();
 
-	public fileMonitor() {
+	public FileMonitor() {
 
 	}
 

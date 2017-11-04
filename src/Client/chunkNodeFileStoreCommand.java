@@ -7,7 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class chunkNodeFileStoreCommand implements Command {
+public class ChunkNodeFileStoreCommand implements Command {
 	public static final String cmd = "CMD_CHUNK_NODE_FILE_STORE_COMMAND";
 
 	public String ipAddress;
@@ -15,10 +15,10 @@ public class chunkNodeFileStoreCommand implements Command {
 	public String chunkIP;
 	public int chunkPORT;
 
-	public chunkNodeFileStoreCommand() {
+	public ChunkNodeFileStoreCommand() {
 	}
 
-	public chunkNodeFileStoreCommand(String ipAddress, int port,String ChunkipAddress, int Chunkport) {
+	public ChunkNodeFileStoreCommand(String ipAddress, int port,String ChunkipAddress, int Chunkport) {
 		super();
 		this.ipAddress = ipAddress;
 		this.port = port;

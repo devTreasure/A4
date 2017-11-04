@@ -2,7 +2,7 @@ package Controller;
 import java.io.FileInputStream;
 import java.security.MessageDigest;
 
-public class chesumUtil {
+public class ChesumUtil {
 	
 	  public static void main(String args[]) throws Exception {
 
