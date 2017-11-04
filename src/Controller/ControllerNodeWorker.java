@@ -7,18 +7,16 @@ import java.net.Socket;
 
 import Client.Command;
 import Client.CommandFactory;
-import Client.Node;
 import Client.TCPSender;
 
 
 public class ControllerNodeWorker implements Runnable {
 
    private ServerSocket serverSocket;
-   private Node node;
-   public boolean continueFlag = true;
+   private ControllerNode node;
    private TCPSender tcpSender = new TCPSender();
 
-   public ControllerNodeWorker(ServerSocket sc, Node node) {
+   public ControllerNodeWorker(ServerSocket sc, ControllerNode node) {
       this.serverSocket = sc;
       this.node = node;
    }
@@ -27,7 +25,7 @@ public class ControllerNodeWorker implements Runnable {
    public void run() {
       System.out.println("Controlll node  receiver thread started");
 
-      while (continueFlag) {
+      while (ControllerNode.continueOperation) {
          Socket socket = null;
          Command request = null;
          try {
@@ -66,19 +64,11 @@ public class ControllerNodeWorker implements Runnable {
       }
    }
 
-   public boolean isContinueFlag() {
-      return continueFlag;
-   }
-
-   public void setContinueFlag(boolean continueFlag) {
-      this.continueFlag = continueFlag;
-   }
-
-   public Node getNode() {
+   public ControllerNode getNode() {
       return node;
    }
 
-   public void setNode(Node node) {
+   public void setNode(ControllerNode node) {
       this.node = node;
    }
 }

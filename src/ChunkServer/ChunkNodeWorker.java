@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import Client.ClientNode;
 import Client.Command;
 import Client.CommandFactory;
-import Client.Node;
 import Client.TCPSender;
 
 public class ChunkNodeWorker  implements Runnable{
@@ -69,7 +67,7 @@ public class ChunkNodeWorker  implements Runnable{
 	      this.continueFlag = continueFlag;
 	   }
 
-	   public Node getNode() {
+	   public ChunkNode getNode() {
 	      return node;
 	   }
 

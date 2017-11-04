@@ -3,8 +3,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-//import A2.message.Command;
-//import A2.message.CommandFactory;
 
 public class ClienNodeWorker implements Runnable {
 

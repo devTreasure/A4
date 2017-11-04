@@ -7,25 +7,22 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 public class ChunkServersRequestCommand implements Command {
-	
+
 	public static final String cmd = "CMD_ChunkServers_RQST";
 
 	public String ipAddress;
 	public int port;
-    public int id;
+	public int id;
 
 	public ChunkServersRequestCommand() {
 	}
 
-	public ChunkServersRequestCommand(String ipAddress, int port,int id) {
+	public ChunkServersRequestCommand(String ipAddress, int port, int id) {
 		super();
 		this.ipAddress = ipAddress;
 		this.port = port;
-		this.id=id;
+		this.id = id;
 	}
-	
-
-	
 
 	public byte[] unpack() {
 		byte[] marshalledBytes = null;
@@ -39,8 +36,8 @@ public class ChunkServersRequestCommand implements Command {
 			dout.write(cmd.getBytes());
 			dout.writeInt(ipAddress.length());
 			dout.write(ipAddress.getBytes());
-			dout.writeInt(port);	
-			dout.writeInt(id);		
+			dout.writeInt(port);
+			dout.writeInt(id);
 			dout.flush();
 			marshalledBytes = baOutputStream.toByteArray();
 		} catch (Exception e) {
@@ -73,9 +70,9 @@ public class ChunkServersRequestCommand implements Command {
 		return new String(IP_address);
 	}
 
-   @Override
-   public String toString() {
-      return "ChunkServersRequestCommand [cmd=" + cmd + ", ipAddress=" + ipAddress + ", port=" + port   + "]";
-   }	
-	
+	@Override
+	public String toString() {
+		return "ChunkServersRequestCommand [cmd=" + cmd + ", ipAddress=" + ipAddress + ", port=" + port + "]";
+	}
+
 }
