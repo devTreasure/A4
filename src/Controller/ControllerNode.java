@@ -11,7 +11,7 @@ import java.util.Hashtable;
 import java.util.Random;
 import java.util.Set;
 
-import ChunkServer.ChunkServers;
+import ChunkServer.ChunkServer;
 import Client.ChunkNodeFileInfoCommand;
 import Client.ChunkNodeWentliveRequest;
 import Client.ChunkServersRequestCommand;
@@ -40,7 +40,7 @@ public class ControllerNode implements Node {
 	public String str_MINOR_HEARTBEAT_REQUEST = "MINOR_HB";
 	private ControllerNodeWorker controllerReceiverWorker;
 
-	private Set<ChunkServers> chunkServerCollection = new HashSet<ChunkServers>();
+	private Set<ChunkServer> chunkServerCollection = new HashSet<ChunkServer>();
 	private Hashtable<String, String> chunkServerFileInfoCollection = new Hashtable<String, String>();
 
 	public ControllerNode() {
@@ -56,7 +56,7 @@ public class ControllerNode implements Node {
 	}
 
 	public Command returnTheChunkServer() {
-		Set<ChunkServers> nodes = new HashSet<ChunkServers>();
+		Set<ChunkServer> nodes = new HashSet<ChunkServer>();
 		
 		int chunkServersCount = chunkServerCollection.size();
 		if(chunkServersCount == 0) {
@@ -64,7 +64,7 @@ public class ControllerNode implements Node {
 		} else if (chunkServersCount > 1 && chunkServersCount <= 3) {
 			nodes.addAll(chunkServerCollection);
 		} else {
-			ArrayList<ChunkServers> chunkNodesAsList = new ArrayList<ChunkServers>(chunkServerCollection);
+			ArrayList<ChunkServer> chunkNodesAsList = new ArrayList<ChunkServer>(chunkServerCollection);
 			Random random = new Random();
 			for(int i=0;i < 10; i++) {
 				int nextInt = random.nextInt(chunkServersCount);
@@ -76,7 +76,7 @@ public class ControllerNode implements Node {
 		}
 		
 		String message = ""; 
-		for (ChunkServers eachChunkServer : nodes) {
+		for (ChunkServer eachChunkServer : nodes) {
 			message += eachChunkServer.IP() + ":" + String.valueOf(eachChunkServer.PORT());
 			message += ",";
 		}
@@ -93,7 +93,7 @@ public class ControllerNode implements Node {
 
 	public Command addChunkinfo2Collection(ChunkNodeWentliveRequest command) {
 		System.out.println(command.chunkIP + ":" + command.chunkPORT);
-		chunkServerCollection.add(new ChunkServers(command.chunkIP, command.chunkPORT));
+		chunkServerCollection.add(new ChunkServer(command.chunkIP, command.chunkPORT));
 		System.out.println("Collection size :" + chunkServerCollection.size());
 		return new Response(true, "Chunk node is added");
 	}

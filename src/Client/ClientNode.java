@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ChunkServer.ChunkNode;
-import ChunkServer.ChunkServers;
+import ChunkServer.ChunkServer;
 
 public class ClientNode implements Node {
 
@@ -23,7 +23,7 @@ public class ClientNode implements Node {
 
 	public String controllerNodeIP = "";
 	public int controllerNodePORT = -1;
-	private List<ChunkServers> chunkServers = new ArrayList<>();
+	private List<ChunkServer> chunkServers = new ArrayList<>();
 
 	public void initializeClientNode() throws IOException {
 
@@ -129,7 +129,7 @@ public class ClientNode implements Node {
 			for (String eachValue : strchunkNodes) {
 				if(eachValue!=null && !eachValue.trim().isEmpty()) {
 					String[] data = eachValue.split(":");
-					ChunkServers srvr = new ChunkServers(data[0], Integer.parseInt(data[1]));
+					ChunkServer srvr = new ChunkServer(data[0], Integer.parseInt(data[1]));
 					System.out.println("Chunk Server: " + srvr);
 					chunkServers.add(srvr);
 				}

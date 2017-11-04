@@ -1,13 +1,13 @@
 package ChunkServer;
 
-public class ChunkServers {
+public class ChunkServer {
 	
 	private String IP;
 	private int PORT;
 	
-	public ChunkServers(String ipAddress, int port2) {
+	public ChunkServer(String ipAddress, int port) {
 	   this.IP=ipAddress;
-	   this.PORT=port2;
+	   this.PORT=port;
 	}
 
 	public String IP() {
@@ -43,7 +43,7 @@ public class ChunkServers {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ChunkServers other = (ChunkServers) obj;
+		ChunkServer other = (ChunkServer) obj;
 		if (IP == null) {
 			if (other.IP != null)
 				return false;
