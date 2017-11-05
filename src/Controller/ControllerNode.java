@@ -42,6 +42,7 @@ public class ControllerNode implements Node {
 
 	private Set<ChunkServer> chunkServerCollection = new HashSet<ChunkServer>();
 	private Hashtable<String, String> chunkServerFileInfoCollection = new Hashtable<String, String>();
+	private Hashtable<String, FileInfo> fileInfoCollection = new Hashtable<String, FileInfo>();
 
 	public ControllerNode() {
 
@@ -99,14 +100,36 @@ public class ControllerNode implements Node {
 	}
 
 	public Command collectchunkNodeFileDetails(ChunkNodeFileInfoCommand command) {
-
-		
 		
 		System.out.println(command.fileName + ":" + command.checksumID);
-		chunkServerFileInfoCollection.put(command.fileName, command.checksumID);
-		System.out.println("File Collection size :" + chunkServerFileInfoCollection.size());
 
-		return new Response(true, "chunk file info recevied by controller");
+		FileInfo fileDetails = new FileInfo();
+
+		if (command != null)
+
+		{
+			fileDetails.chunkNodeIP = command.chunkIP;
+			fileDetails.chunkNodePORT = command.chunkPORT;
+			fileDetails.FileName = command.fileName;
+			fileDetails.checkSumID = command.checksumID;
+
+			fileInfoCollection.put(command.fileName, fileDetails);
+
+			System.out.println("----Stronly typed file INFO collection---");
+			System.out.println(fileInfoCollection.size());
+
+			// Need to raise here file corruption based on the checksum diff
+			// Alert Chunknode
+			// recover the file
+
+			chunkServerFileInfoCollection.put(command.fileName, command.checksumID);
+			System.out.println("File Collection size :" + chunkServerFileInfoCollection.size());
+
+			return new Response(true, "chunk file info recevied by controller");
+
+		}
+
+		return new Response(true, "spmething went wrong with ChunkNodeFileInfoCommand");
 	}
 
 	private void intializeControllerNode() throws IOException {
@@ -148,9 +171,8 @@ public class ControllerNode implements Node {
 				return3AvailableChunkServers(controllerNode);
 			} else if (READ_COMMAND.equalsIgnoreCase("read")) {
 				System.out.println("read operation is performed");
-			} else if ("pull-traffic-summary".equalsIgnoreCase(exitStr)) {
-				// collatorNode.trafficSummary();
-			}
+			} 
+			
 		}
 
 		System.out.println("Bye.");
@@ -159,7 +181,7 @@ public class ControllerNode implements Node {
 	public static void return3AvailableChunkServers(ControllerNode controllerNode) {
 		controllerNode.returnTheChunkServer();
 	}
-	
+
 	@Override
 	public Command notify(Command command) throws Exception {
 		// TODO Auto-generated method stub

@@ -91,7 +91,13 @@ public class ClientNode implements Node {
 			} else if (inputStr.startsWith(WRITE_COMMAND)) {
 				clientnode.sendFileToChunkNode(inputStr.split(" ")[1]);
 			} else if (READ_COMMAND.equalsIgnoreCase(inputStr)) {
-				System.out.println("read operation is performed");
+				System.out.println("************ READ  OPS ***********");
+				System.out.println("Provide file name to read");
+				BufferedReader brs = new BufferedReader(new InputStreamReader(System.in));
+
+				String inputFileStr = brs.readLine();
+				System.out.println(inputFileStr);
+				clientnode.readFileFromChunkServer(inputFileStr);
 			} else if (THREE_SERVERS.equalsIgnoreCase(inputStr)) {
 				System.out.println("3servers operation is performed");
 				clientnode.return3AvailableChunkServers();
@@ -111,7 +117,15 @@ public class ClientNode implements Node {
 		System.out.println("   3. Writing to first chunk server.");
 		writeFiletoChunkNode(file, chunks);
 	}
+	
+	public void readFileFromChunkServer(String filename) {
+		// TODO Auto-generated method stub
+		System.out.println("File to be read is :" +filename);
+		
+		
+	}
 
+	
 	private List<File> splitFile(File inputFile) throws Exception {
 		FileSplit fileSplit = new FileSplit();
 		List<File> chunks = fileSplit.splitFile(inputFile);
@@ -148,8 +162,7 @@ public class ClientNode implements Node {
     				counter++;
     			}
     		}
-		}
-		
+		}		
 	}
 
 	private void return3AvailableChunkServers() throws Exception {
