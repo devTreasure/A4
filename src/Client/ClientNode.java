@@ -183,7 +183,7 @@ public class ClientNode implements Node {
 			ChunkServer toChunkServer = chunkServers.get(0);
 			
     		for (File eachChunk : chunks) {
-    			ChunkWriteCommand command = new ChunkWriteCommand(chunkServers.get(counter), file.getName(),chunks.size(), eachChunk.getName(), eachChunk);
+    			ChunkWriteCommand command = new ChunkWriteCommand(toChunkServer, file.getName(), eachChunk.getName(), eachChunk);
     			sender.sendAndReceiveData(toChunkServer.IP(), toChunkServer.PORT(), command.unpack());
     			if(counter < max-1) {
     				counter++;

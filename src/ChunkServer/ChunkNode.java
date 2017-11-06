@@ -326,7 +326,8 @@ public class ChunkNode implements Node {
 
 	private Command chunkReceived(ChunkWriteCommand command) {
 		System.out.println("---" + command);
-		fileSpiltInfoInfoCollection.put(command.fileName, command.totalFileChunks);
+		//TODO NoOfChunks not sent -- check
+		fileSpiltInfoInfoCollection.put(command.getFileName(), 0);
 		return new Response(true, "File received.");
 	}
 
