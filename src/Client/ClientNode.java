@@ -26,6 +26,7 @@ public class ClientNode implements Node {
 	public int controllerNodePORT = -1;
 	private List<ChunkServer> chunkServers = new ArrayList<>();
 	private TCPSender sender = new TCPSender();
+	public int totalChunks=0;
 
 	public void initializeClientNode() throws IOException {
 
@@ -94,7 +95,6 @@ public class ClientNode implements Node {
 				System.out.println("************ READ  OPS ***********");
 				System.out.println("Provide file name to read");
 				BufferedReader brs = new BufferedReader(new InputStreamReader(System.in));
-
 				String inputFileStr = brs.readLine();
 				System.out.println(inputFileStr);
 				clientnode.readFileFromChunkServer(inputFileStr);
@@ -122,7 +122,34 @@ public class ClientNode implements Node {
 		// TODO Auto-generated method stub
 		System.out.println("File to be read is :" +filename);
 		
+		ControllerNodeFileAndNodeInfoCommnad controllerFileInfo = new ControllerNodeFileAndNodeInfoCommnad(filename);
+		Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, controllerFileInfo.unpack());
+		Response response = (Response) resp;
 		
+		if(response!=null)
+		{
+		String[] strChunkNodeInfo =response.getMessage().split(":");
+		
+		System.out.println(strChunkNodeInfo[0].toString() + ":" + strChunkNodeInfo[1].toString() );
+		
+		String IP = "";
+		int PORT  =-1;
+		
+		IP=strChunkNodeInfo[0].toString();
+		PORT=Integer.parseInt(strChunkNodeInfo[1].toString());
+		int totalchunks=0;
+		totalchunks=  Integer.parseInt(strChunkNodeInfo[2]);
+		this.totalChunks=totalchunks;
+		
+		ChunkNodetoClinetNodeInfoCommand chunk2Clientinfo = new ChunkNodetoClinetNodeInfoCommand(IP, PORT,this.clientNodeIP,this.clientNodePORT, "test.txt");
+		Command resps = new TCPSender().sendAndReceiveData(IP,PORT, chunk2Clientinfo.unpack());
+		
+		}
+		else
+		{
+			
+			System.out.println("ControllerNodeFileAndNodeInfoCommnad issue"  );
+		}
 	}
 
 	
@@ -156,7 +183,7 @@ public class ClientNode implements Node {
 			ChunkServer toChunkServer = chunkServers.get(0);
 			
     		for (File eachChunk : chunks) {
-    			ChunkWriteCommand command = new ChunkWriteCommand(chunkServers.get(counter), file.getName(), eachChunk.getName(), eachChunk);
+    			ChunkWriteCommand command = new ChunkWriteCommand(chunkServers.get(counter), file.getName(),chunks.size(), eachChunk.getName(), eachChunk);
     			sender.sendAndReceiveData(toChunkServer.IP(), toChunkServer.PORT(), command.unpack());
     			if(counter < max-1) {
     				counter++;
@@ -195,10 +222,39 @@ public class ClientNode implements Node {
 			// return ChunkServersRequestCommand((ChunkServersRequestCommand)
 			// command);
 		}
+		if (command instanceof ChunkWriteOperationsCommand) {
+	
 		// else if(command instanceof ReturnRandomNodeCommand) {
 		// 2. Give me random node to resolve the successor
-		// return randomStaringNode((ReturnRandomNodeCommand) command);
+		 return FileWriteChunkToClientOPS((ChunkWriteOperationsCommand) command);
 		// }
-		return null;
+	
+	}
+		
+	return null;
+}
+	public ArrayList<File> filex = new ArrayList<File>();
+
+	private Command FileWriteChunkToClientOPS(ChunkWriteOperationsCommand command) throws IOException {
+		
+		// TODO Auto-generated method stub
+		System.out.println("---" + command);
+		File f= new File("D:\\Temp\\chunkServerToClient");
+		String[]  files=  f.list();
+		if(files.length==this.totalChunks)
+		{
+			for (String string : files) {
+				File fs = new File("D:\\Temp\\chunkServerToClient\\"+string);
+				filex.add(fs);
+			}
+			
+			FileSplit s=new FileSplit();
+			s.mergeFiles(filex, new File("D:\\Temp\\chunkServerToClient\\"+command.fileName));
+		}
+		
+		return new Response(true, "File received on client side from chunk server.");
+		
 	}
 }
+
+	

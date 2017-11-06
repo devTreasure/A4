@@ -6,29 +6,27 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ChunkNodeFileInfoCommand implements Command {
-	
-	
-	public static final String cmd = "CMD_CHUNK_NODE_FILE_INFO";
+public class ChunkNodetoClinetNodeInfoCommand implements Command {
+
+	public static final String cmd = "CMD_CHUNK_NODE_TO_CLIENT_FILE_INFO";
 
 	public String ipAddress;
 	public int port;
-	public String chunkIP;
-	public int chunkPORT;
+	public String clientIP;
+	public int clientPORT;
 	public String fileName;
-	public int checksumID;
 
-	public ChunkNodeFileInfoCommand() {
+	public ChunkNodetoClinetNodeInfoCommand() {
 	}
 
-	public ChunkNodeFileInfoCommand(String ipAddress, int port,String ChunkipAddress, int Chunkport,String fileName,int ChecksumID) {
+	public ChunkNodetoClinetNodeInfoCommand(String ipAddress, int port,String clientIP,int clientPORT, String fileName) {
 		super();
 		this.ipAddress = ipAddress;
 		this.port = port;
-		this.chunkIP=ChunkipAddress;
-		this.chunkPORT=Chunkport;
-		this.fileName=fileName;
-		this.checksumID=ChecksumID;
+		this.clientIP = clientIP;
+		this.clientPORT = clientPORT;
+		this.fileName = fileName;
+
 	}
 
 	public byte[] unpack() {
@@ -45,14 +43,11 @@ public class ChunkNodeFileInfoCommand implements Command {
 			dout.writeInt(ipAddress.length());
 			dout.write(ipAddress.getBytes());
 			dout.writeInt(port);
-			dout.writeInt(chunkIP.length());
-			dout.write(chunkIP.getBytes());
-			dout.writeInt(chunkPORT);
+			dout.writeInt(clientIP.length());
+			dout.write(clientIP.getBytes());
+			dout.writeInt(clientPORT);
 			dout.writeInt(fileName.length());
 			dout.write(fileName.getBytes());
-			dout.writeInt(checksumID);
-			//dout.writeInt(checksumID.length());
-			//dout.write(checksumID.getBytes());
 			dout.flush();
 			marshalledBytes = baOutputStream.toByteArray();
 		} catch (Exception e) {
@@ -73,10 +68,9 @@ public class ChunkNodeFileInfoCommand implements Command {
 
 			ipAddress = readString(din);
 			port = din.readInt();
-			chunkIP=readString(din);
-			chunkPORT= din.readInt();
-			fileName= readString(din);
-			checksumID= din.readInt();
+			clientIP=readString(din);
+			clientPORT= din.readInt();
+			fileName = readString(din);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -92,8 +86,7 @@ public class ChunkNodeFileInfoCommand implements Command {
 
 	@Override
 	public String toString() {
-		return "ChunkServersRequestCommand [cmd=" + cmd + ", ipAddress=" + chunkIP + ", port=" + chunkPORT + "]";
+		return "ChunkNodeFileInfoCommand [cmd=" + cmd + ", ipAddress=" + ipAddress + ", port=" + port + "]";
 	}
-
 
 }

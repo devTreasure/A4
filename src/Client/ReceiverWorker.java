@@ -19,14 +19,14 @@ public class ReceiverWorker implements Runnable {
 
    @Override
    public void run() {
-      System.out.println("Started receiver thread;");
+      System.out.println("Started Client receiver thread;");
 
       while (continueFlag) {
          Socket socket = null;
          Command request = null;
          try {
             socket = serverSocket.accept();
-            
+            System.out.println("client socket excepted");
             //Get the message
             request = CommandFactory.process(socket);
             

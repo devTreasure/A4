@@ -35,14 +35,29 @@ public class CommandFactory {
 				ChunkNodeWentliveRequest chunkNodeAliveCmd = new ChunkNodeWentliveRequest();
 				chunkNodeAliveCmd.pack(din);
 				cmd = chunkNodeAliveCmd;
+			} else if (ControllerNodeFileAndNodeInfoCommnad.cmd.equals(str_request_type)) {
+				ControllerNodeFileAndNodeInfoCommnad controllerfileAndNodeInfo = new ControllerNodeFileAndNodeInfoCommnad();
+				controllerfileAndNodeInfo.pack(din);
+				cmd = controllerfileAndNodeInfo;
+			} else if (ChunkNodetoClinetNodeInfoCommand.cmd.equals(str_request_type)) {
+				ChunkNodetoClinetNodeInfoCommand chunk2ClienttWrite = new ChunkNodetoClinetNodeInfoCommand();
+				chunk2ClienttWrite.pack(din);
+				cmd = chunk2ClienttWrite;
+			}
+
+			else if (ChunkWriteOperationsCommand.cmd.equals(str_request_type)) {
+				ChunkWriteOperationsCommand chunkWriteOperationsCommand = new ChunkWriteOperationsCommand();
+				chunkWriteOperationsCommand.pack(din);
+				cmd = chunkWriteOperationsCommand;
 			} else if (ChunkNodePollingCommand.cmd.equals(str_request_type)) {
 				ChunkNodePollingCommand chunkNodePollingCmd = new ChunkNodePollingCommand();
 				chunkNodePollingCmd.pack(din);
 				cmd = chunkNodePollingCmd;
-			} else if(ChunkWriteCommand.cmd.equals(str_request_type)) {
+			} else if (ChunkWriteCommand.cmd.equals(str_request_type)) {
 				ChunkWriteCommand chunkWriteCommand = new ChunkWriteCommand();
 				chunkWriteCommand.pack(din);
 				cmd = chunkWriteCommand;
+			
 			} else {
 				System.out.println("ERROR: UNKNOWN COMMAND. " + str_request_type);
 			}
@@ -50,11 +65,11 @@ public class CommandFactory {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-//			try {
-//				din.close();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			// try {
+			// din.close();
+			// } catch (IOException e) {
+			// e.printStackTrace();
+			// }
 		}
 
 		return cmd;

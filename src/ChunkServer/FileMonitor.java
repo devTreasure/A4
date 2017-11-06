@@ -37,7 +37,7 @@ public class FileMonitor {
 	
 	public ArrayList<String> getAllfilesInfoOnChunkServer() {
 		
-		File file = new File("D:\\destination");
+		File file = new File("D:\\Temp\\chunkServer\\out");
 
 		if (file.list().length > 0) {
 
@@ -68,7 +68,7 @@ public class FileMonitor {
 
 
 	public void fileExists() {
-		File file = new File("D:\\destination");
+		File file = new File("D:\\Temp\\chunkServer\\out");
 
 		File filespace = new File("D:");
 

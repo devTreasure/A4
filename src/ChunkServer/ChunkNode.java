@@ -1,6 +1,7 @@
 package ChunkServer;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
@@ -8,12 +9,16 @@ import java.net.ServerSocket;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
 
 import Client.ChunkNodeFileInfoCommand;
 import Client.ChunkNodeFileStoreCommand;
 import Client.ChunkNodeWentliveRequest;
+import Client.ChunkNodetoClinetNodeInfoCommand;
 import Client.ChunkServersRequestCommand;
 import Client.ChunkWriteCommand;
+import Client.ChunkWriteOperationsCommand;
 import Client.Command;
 import Client.Node;
 import Client.Response;
@@ -30,14 +35,14 @@ public class ChunkNode implements Node {
 	// Tis collection has the guids for the files being added for the first time
 
 	private Hashtable<String, String> chunkServerFileIntegretyCheckSumCollection = new Hashtable<String, String>();
-
+	private Hashtable<String, Integer> fileSpiltInfoInfoCollection = new Hashtable<String, Integer>();
 	public static final String EXIT_COMMAND = "exit";
 	public static final String WRITE_COMMAND = "write";
 	public static final String READ_COMMAND = "read";
 	public String str_getChunkServer_Request = "GET_3_CHUNK_SERVERS";
 	public String chunkserverNodeName;
 	public ServerSocket serverSocket;
-	public String filePATH = "D:\\chunkStorage";
+	public String filePATH = "D:\\Temp\\chunkServer\\out";
 	public ArrayList<String> fileCollection = new ArrayList<String>();
 
 	public String str_SUCC_REQUEST = "SUCC_REQUEST";
@@ -149,7 +154,8 @@ public class ChunkNode implements Node {
 		Thread t300sec = new Thread(p300);
 		t300sec.start();
 
-		System.out.println(" Chunk node is hoasted at : " + this.chunkNodeIP + "  " + " Listenning port : " + sc.getLocalPort());
+		System.out.println(
+				" Chunk node is hoasted at : " + this.chunkNodeIP + "  " + " Listenning port : " + sc.getLocalPort());
 
 		// 5. Send the controller
 		sendtheChunkNodeinfotoController();
@@ -157,7 +163,8 @@ public class ChunkNode implements Node {
 
 	public void sendtheChunkNodeinfotoController() throws Exception {
 		// TODO Auto-generated method stub
-		ChunkNodeWentliveRequest livereq = new ChunkNodeWentliveRequest(this.controllerNodeIP, this.controllerNodePORT, this.chunkNodeIP, this.chunkrNodePORT);
+		ChunkNodeWentliveRequest livereq = new ChunkNodeWentliveRequest(this.controllerNodeIP, this.controllerNodePORT,
+				this.chunkNodeIP, this.chunkrNodePORT);
 		Command resp = sender.sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, livereq.unpack());
 		Response response = (Response) resp;
 		System.out.println(response.getMessage());
@@ -173,24 +180,46 @@ public class ChunkNode implements Node {
 		// method
 
 		chunkServerStatistics();
+		if (fileSpiltInfoInfoCollection.size() > 0) {
+			// for (int i = 0; i < this.fileSpiltInfoInfoCollection.size(); i++) {
+			Set<String> keys = fileSpiltInfoInfoCollection.keySet();
+			for (String string : keys) {
+				// fileSpiltInfoInfoCollection.get(string);
+				ChunkNodeFileInfoCommand cmd = new ChunkNodeFileInfoCommand(this.controllerNodeIP,
+						this.controllerNodePORT, this.chunkNodeIP, this.chunkrNodePORT, string,
+						fileSpiltInfoInfoCollection.get(string));
+				Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT,
+						cmd.unpack());
 
-		for (int i = 0; i < this.fileCollection.size(); i++) {
-			String generatedCHeckSumID = "";
+				Response response = (Response) resp;
 
-			TemperingUtil temperU = new TemperingUtil();
-
-			temperU.generateChecksum(this.fileCollection.get(i));
-
-			ChunkNodeFileInfoCommand cmd = new ChunkNodeFileInfoCommand(this.controllerNodeIP, this.controllerNodePORT, this.chunkNodeIP, this.chunkrNodePORT, fileCollection.get(i),
-			        temperU.checkSumID);
-
-			Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, cmd.unpack());
-
-			Response response = (Response) resp;
-
-			System.out.println(response.getMessage());
-
+				System.out.println(response.getMessage());
+			}
 		}
+		String generatedCHeckSumID = "";
+
+		// TemperingUtil temperU = new TemperingUtil();
+
+		// temperU.generateChecksum(this.fileCollection.get(i));
+		/*
+		 * ChunkNodeFileInfoCommand cmd = new
+		 * ChunkNodeFileInfoCommand(this.controllerNodeIP, this.controllerNodePORT,
+		 * this.chunkNodeIP, this.chunkrNodePORT,null , temperU.checkSumID);
+		 * 
+		 * 
+		 */
+
+		// ChunkNodeFileInfoCommand cmd = new
+		// ChunkNodeFileInfoCommand(this.controllerNodeIP,this.controllerNodePORT,
+		// this.chunkNodeIP, this.chunkrNodePORT,null , temperU.checkSumID);
+		// Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP,
+		// this.controllerNodePORT, cmd.unpack());
+
+		// Response response = (Response) resp;
+
+		// System.out.println(response.getMessage());
+
+		// }
 
 	}
 
@@ -266,13 +295,38 @@ public class ChunkNode implements Node {
 			return collectfilesInfo((ChunkNodeFileInfoCommand) command);
 		} else if (command instanceof ChunkWriteCommand) {
 			return chunkReceived((ChunkWriteCommand) command);
+		} else if (command instanceof ChunkNodetoClinetNodeInfoCommand) {
+			return ChunkWriteToClient((ChunkNodetoClinetNodeInfoCommand) command);
 		}
 
 		return new Response(true, "Nothing");
 	}
 
+	private Command ChunkWriteToClient(ChunkNodetoClinetNodeInfoCommand command) {
+		System.out.println("Inside chunk2ClienttWrite method");
+		File file = new File("D:\\Temp\\chunkServer\\out");
+		File[] chunks = file.listFiles();
+
+		int counter = 0;
+		for (File eachChunk : chunks) {
+			System.out.println("FILE NAME :" + eachChunk.getName());
+			ChunkWriteOperationsCommand writeCommand = new ChunkWriteOperationsCommand(command.ipAddress, command.port,
+					command.fileName, eachChunk.getName(), eachChunk);
+			System.out.println("data to sent : " + command.clientIP + ":" + command.clientPORT);
+			Command resp = sender.sendAndReceiveData(command.clientIP, command.clientPORT, writeCommand.unpack());
+			Response response = (Response) resp;
+
+			System.out.println(response.getMessage());
+			// if(counter < max-1) {
+			counter++;
+			// }
+		}
+		return new Response(true, "File Written to ClientSide ");
+	}
+
 	private Command chunkReceived(ChunkWriteCommand command) {
 		System.out.println("---" + command);
+		fileSpiltInfoInfoCollection.put(command.fileName, command.totalFileChunks);
 		return new Response(true, "File received.");
 	}
 

@@ -16,6 +16,7 @@ import Client.ChunkNodeFileInfoCommand;
 import Client.ChunkNodeWentliveRequest;
 import Client.ChunkServersRequestCommand;
 import Client.Command;
+import Client.ControllerNodeFileAndNodeInfoCommnad;
 import Client.Node;
 import Client.Response;
 
@@ -41,8 +42,9 @@ public class ControllerNode implements Node {
 	private ControllerNodeWorker controllerReceiverWorker;
 
 	private Set<ChunkServer> chunkServerCollection = new HashSet<ChunkServer>();
-	private Hashtable<String, String> chunkServerFileInfoCollection = new Hashtable<String, String>();
+	private Hashtable<String, Integer> chunkServerFileInfoCollection = new Hashtable<String, Integer>();
 	private Hashtable<String, FileInfo> fileInfoCollection = new Hashtable<String, FileInfo>();
+	private Hashtable<String, ArrayList<String>> fileSpiltInfoInfoCollection = new Hashtable<String, ArrayList<String>>();
 
 	public ControllerNode() {
 
@@ -99,6 +101,8 @@ public class ControllerNode implements Node {
 		return new Response(true, "Chunk node is added");
 	}
 
+	
+	
 	public Command collectchunkNodeFileDetails(ChunkNodeFileInfoCommand command) {
 		
 		System.out.println(command.fileName + ":" + command.checksumID);
@@ -114,15 +118,17 @@ public class ControllerNode implements Node {
 			fileDetails.checkSumID = command.checksumID;
 
 			fileInfoCollection.put(command.fileName, fileDetails);
-
+			
+		    String[] fileSplit=command.fileName.split("_");
+		    
+		    
 			System.out.println("----Stronly typed file INFO collection---");
 			System.out.println(fileInfoCollection.size());
 
-			// Need to raise here file corruption based on the checksum diff
-			// Alert Chunknode
-			// recover the file
-
+	
+            
 			chunkServerFileInfoCollection.put(command.fileName, command.checksumID);
+			
 			System.out.println("File Collection size :" + chunkServerFileInfoCollection.size());
 
 			return new Response(true, "chunk file info recevied by controller");
@@ -162,8 +168,8 @@ public class ControllerNode implements Node {
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 			String exitStr = br.readLine();
 			System.out.println("Received command is:" + exitStr);
-
-			if (EXIT_COMMAND.equalsIgnoreCase(exitStr)) {
+			System.out.println("NO READ WRITE OPS ON CONTROLLER TERMINAL");
+/*			if (EXIT_COMMAND.equalsIgnoreCase(exitStr)) {
 				ControllerNode.continueOperation = false;
 				System.out.println("Exiting.");
 			} else if (WRITE_COMMAND.equalsIgnoreCase("write")) {
@@ -171,7 +177,7 @@ public class ControllerNode implements Node {
 				return3AvailableChunkServers(controllerNode);
 			} else if (READ_COMMAND.equalsIgnoreCase("read")) {
 				System.out.println("read operation is performed");
-			} 
+			} */
 			
 		}
 
@@ -181,6 +187,27 @@ public class ControllerNode implements Node {
 	public static void return3AvailableChunkServers(ControllerNode controllerNode) {
 		controllerNode.returnTheChunkServer();
 	}
+	
+	public Command collectchunkNodeFileDetailsforclientRequest(ControllerNodeFileAndNodeInfoCommnad command)
+	{
+		//1..
+		
+		String requestedFile ="";
+		requestedFile = command.fileName;
+		
+		if(requestedFile !=null && requestedFile.length()>0 && fileInfoCollection.size()>0)
+		{
+			FileInfo fileobj=null;
+			fileobj=fileInfoCollection.get(requestedFile);
+			
+
+		return new Response(true,fileobj.chunkNodeIP +":"+String.valueOf(fileobj.chunkNodePORT) +":"+ fileobj.checkSumID);
+
+		}
+			
+		return null;
+	}
+	
 
 	@Override
 	public Command notify(Command command) throws Exception {
@@ -196,7 +223,10 @@ public class ControllerNode implements Node {
 		if (command instanceof ChunkNodeFileInfoCommand) {
 			return collectchunkNodeFileDetails((ChunkNodeFileInfoCommand) command);
 		}
-
+		if (command instanceof ControllerNodeFileAndNodeInfoCommnad)
+		{
+			return collectchunkNodeFileDetailsforclientRequest((ControllerNodeFileAndNodeInfoCommnad) command);
+		}
 		/*
 		 * Command response = new NodeDetails("", -1, -1, true, "Nothing"); if
 		 * (command instanceof ChunkServersRequestCommand) {
