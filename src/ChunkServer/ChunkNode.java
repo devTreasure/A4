@@ -343,8 +343,26 @@ public class ChunkNode implements Node {
          return new Response(false, "File not found." + file.getAbsolutePath());
       }
 
-      ChunkWriteOperationsCommand writeCommand = new ChunkWriteOperationsCommand(command.ipAddress,
-            command.port, command.fileName, file.getName(), file);
+      boolean isFileTemperd = false;
+      try {
+         //Check whether file has been tempered or not.
+         String sha1FromFile = ChunkFileUtility.readSha1(file.getAbsolutePath());
+         byte[] fileBytes = ChunkFileUtility.fileContentWithoutSha1(file);
+         String newSha1 = TemperingUtil.generateChecksumOfAllBytes(fileBytes);
+         if(!sha1FromFile.equals(newSha1)) {
+            isFileTemperd = true;
+         }
+         
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      
+      Command writeCommand = null;
+      if(isFileTemperd) {
+         writeCommand = new Response(false, "Chunk file is tempred. " + file.getAbsolutePath());
+      } else {
+         writeCommand = new ChunkWriteOperationsCommand(command.ipAddress, command.port, command.fileName, file.getName(), file);
+      }
       System.out.println("data to sent : " + command.clientIP + ":" + command.clientPORT);
       return writeCommand;
 

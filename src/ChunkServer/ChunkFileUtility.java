@@ -37,11 +37,13 @@ public class ChunkFileUtility {
 	}
 
 	public static byte[] fileContentWithoutSha1(String path) throws Exception {
-		byte[] data = null;
+	   return fileContentWithoutSha1(new File(path));
+	}
+	public static byte[] fileContentWithoutSha1(File f) throws Exception {
+		byte[] data = new byte[0];
 		RandomAccessFile raf = null;
 
 		try {
-			File f = new File(path);
 			System.out.println("Rading file: " + f.getAbsolutePath() + ", Exists:[" + f.exists() + "]");
 
 			// 160 bit sha has 20 bytes - 40 HEX digits numerical value
@@ -52,7 +54,7 @@ public class ChunkFileUtility {
 			// raf.readFully(shaBytes);
 			// String storedSha1Id = new String(shaBytes);
 			
-			raf = new RandomAccessFile(path, "r");
+			raf = new RandomAccessFile(f, "r");
 			long contentLength = f.length() - 40;
 			System.out.println("File content length" + f.length() + ", will be readinf minus 40 bytes:" + contentLength);
 			data = new byte[(int) contentLength];
