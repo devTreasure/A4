@@ -64,4 +64,16 @@ public class ChunkFileUtility {
 		
 		return data;
 	}
+	
+
+
+   public static String join(String[] str, String separator) {
+      String retval = "";
+      for (String s : str) {
+         retval += separator + s;
+      }
+      return retval.replaceFirst(separator, "");
+   }
+
+
 }

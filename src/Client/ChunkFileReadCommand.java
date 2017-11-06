@@ -6,7 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ChunkNodetoClinetNodeInfoCommand implements Command {
+public class ChunkFileReadCommand implements Command {
 
 	public static final String cmd = "CMD_CHUNK_NODE_TO_CLIENT_FILE_INFO";
 
@@ -16,10 +16,10 @@ public class ChunkNodetoClinetNodeInfoCommand implements Command {
 	public int clientPORT;
 	public String fileName;
 
-	public ChunkNodetoClinetNodeInfoCommand() {
+	public ChunkFileReadCommand() {
 	}
 
-	public ChunkNodetoClinetNodeInfoCommand(String ipAddress, int port,String clientIP,int clientPORT, String fileName) {
+	public ChunkFileReadCommand(String ipAddress, int port,String clientIP,int clientPORT, String fileName) {
 		super();
 		this.ipAddress = ipAddress;
 		this.port = port;

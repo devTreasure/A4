@@ -15,19 +15,19 @@ public class ChunkNodeFileInfoCommand implements Command {
 	public int port;
 	public String chunkIP;
 	public int chunkPORT;
-	public String fileName;
+	public String allFileData;
 	public int checksumID;
 
 	public ChunkNodeFileInfoCommand() {
 	}
 
-	public ChunkNodeFileInfoCommand(String ipAddress, int port,String ChunkipAddress, int Chunkport,String fileName,int ChecksumID) {
+	public ChunkNodeFileInfoCommand(String ipAddress, int port,String ChunkipAddress, int Chunkport,String allFileData, int ChecksumID) {
 		super();
 		this.ipAddress = ipAddress;
 		this.port = port;
 		this.chunkIP=ChunkipAddress;
 		this.chunkPORT=Chunkport;
-		this.fileName=fileName;
+		this.allFileData=allFileData;
 		this.checksumID=ChecksumID;
 	}
 
@@ -48,8 +48,8 @@ public class ChunkNodeFileInfoCommand implements Command {
 			dout.writeInt(chunkIP.length());
 			dout.write(chunkIP.getBytes());
 			dout.writeInt(chunkPORT);
-			dout.writeInt(fileName.length());
-			dout.write(fileName.getBytes());
+			dout.writeInt(allFileData.length());
+			dout.write(allFileData.getBytes());
 			dout.writeInt(checksumID);
 			//dout.writeInt(checksumID.length());
 			//dout.write(checksumID.getBytes());
@@ -75,7 +75,7 @@ public class ChunkNodeFileInfoCommand implements Command {
 			port = din.readInt();
 			chunkIP=readString(din);
 			chunkPORT= din.readInt();
-			fileName= readString(din);
+			allFileData= readString(din);
 			checksumID= din.readInt();
 
 		} catch (IOException e) {

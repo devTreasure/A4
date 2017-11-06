@@ -35,17 +35,15 @@ public class CommandFactory {
 				ChunkNodeWentliveRequest chunkNodeAliveCmd = new ChunkNodeWentliveRequest();
 				chunkNodeAliveCmd.pack(din);
 				cmd = chunkNodeAliveCmd;
-			} else if (ControllerNodeFileAndNodeInfoCommnad.cmd.equals(str_request_type)) {
-				ControllerNodeFileAndNodeInfoCommnad controllerfileAndNodeInfo = new ControllerNodeFileAndNodeInfoCommnad();
+			} else if (FileInfoCommnad.cmd.equals(str_request_type)) {
+				FileInfoCommnad controllerfileAndNodeInfo = new FileInfoCommnad();
 				controllerfileAndNodeInfo.pack(din);
 				cmd = controllerfileAndNodeInfo;
-			} else if (ChunkNodetoClinetNodeInfoCommand.cmd.equals(str_request_type)) {
-				ChunkNodetoClinetNodeInfoCommand chunk2ClienttWrite = new ChunkNodetoClinetNodeInfoCommand();
+			} else if (ChunkFileReadCommand.cmd.equals(str_request_type)) {
+				ChunkFileReadCommand chunk2ClienttWrite = new ChunkFileReadCommand();
 				chunk2ClienttWrite.pack(din);
 				cmd = chunk2ClienttWrite;
-			}
-
-			else if (ChunkWriteOperationsCommand.cmd.equals(str_request_type)) {
+			} else if (ChunkWriteOperationsCommand.cmd.equals(str_request_type)) {
 				ChunkWriteOperationsCommand chunkWriteOperationsCommand = new ChunkWriteOperationsCommand();
 				chunkWriteOperationsCommand.pack(din);
 				cmd = chunkWriteOperationsCommand;

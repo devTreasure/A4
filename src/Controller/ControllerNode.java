@@ -6,17 +6,19 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.Set;
 
+import ChunkServer.ChunkFileUtility;
 import ChunkServer.ChunkServer;
 import Client.ChunkNodeFileInfoCommand;
 import Client.ChunkNodeWentliveRequest;
 import Client.ChunkServersRequestCommand;
 import Client.Command;
-import Client.ControllerNodeFileAndNodeInfoCommnad;
+import Client.FileInfoCommnad;
 import Client.Node;
 import Client.Response;
 
@@ -45,7 +47,8 @@ public class ControllerNode implements Node {
 	private Hashtable<String, Integer> chunkServerFileInfoCollection = new Hashtable<String, Integer>();
 	private Hashtable<String, FileInfo> fileInfoCollection = new Hashtable<String, FileInfo>();
 	private Hashtable<String, ArrayList<String>> fileSpiltInfoInfoCollection = new Hashtable<String, ArrayList<String>>();
-
+	private HashMap<String, FileInfo> fileInfoMap = new HashMap<String, FileInfo>();
+	
 	public ControllerNode() {
 
 	}
@@ -105,37 +108,47 @@ public class ControllerNode implements Node {
 	
 	public Command collectchunkNodeFileDetails(ChunkNodeFileInfoCommand command) {
 		
-		System.out.println(command.fileName + ":" + command.checksumID);
-
-		FileInfo fileDetails = new FileInfo();
-
-		if (command != null)
-
-		{
-			fileDetails.chunkNodeIP = command.chunkIP;
-			fileDetails.chunkNodePORT = command.chunkPORT;
-			fileDetails.FileName = command.fileName;
-			fileDetails.checkSumID = command.checksumID;
-
-			fileInfoCollection.put(command.fileName, fileDetails);
-			
-		    String[] fileSplit=command.fileName.split("_");
-		    
-		    
-			System.out.println("----Stronly typed file INFO collection---");
-			System.out.println(fileInfoCollection.size());
-
-	
-            
-			chunkServerFileInfoCollection.put(command.fileName, command.checksumID);
-			
-			System.out.println("File Collection size :" + chunkServerFileInfoCollection.size());
-
-			return new Response(true, "chunk file info recevied by controller");
-
-		}
-
-		return new Response(true, "spmething went wrong with ChunkNodeFileInfoCommand");
+         System.out.println(command.allFileData + ":" + command.checksumID);
+   
+         //// f1|f1c1:f1c2:f1c3 ? f2|f2c1:f2c2 ?
+         String[] fileDetails = command.allFileData.split("\\?");
+         for (String eachFileDetail : fileDetails) {
+            String[] fileDetail = eachFileDetail.split("\\|");
+            String fileName = fileDetail[0];
+            String[] chunks = fileDetail[1].split(":");
+            FileInfo fileInfo = new FileInfo(fileName, chunks, command.chunkIP, command.chunkPORT);
+            System.out.println(fileInfo);
+            fileInfoMap.put(fileName, fileInfo);
+         }
+         return new Response(true, "chunk file info recevied by controller");
+//
+//		if (command != null)
+//
+//		{
+//			fileDetails.chunkNodeIP = command.chunkIP;
+//			fileDetails.chunkNodePORT = command.chunkPORT;
+//			fileDetails.fileName = command.allFileData;
+//			fileDetails.checkSumID = command.checksumID;
+//
+//			fileInfoCollection.put(command.allFileData, fileDetails);
+//			
+//		    String[] fileSplit=command.allFileData.split("_");
+//		    
+//		    
+////			System.out.println("----Stronly typed file INFO collection---");
+//			System.out.println(fileInfoCollection.size());
+//
+//	
+//            
+//			chunkServerFileInfoCollection.put(command.allFileData, command.checksumID);
+//			
+//			System.out.println("File Collection size :" + chunkServerFileInfoCollection.size());
+//
+//			return new Response(true, "chunk file info recevied by controller");
+//
+//		}
+//
+//		return new Response(true, "spmething went wrong with ChunkNodeFileInfoCommand");
 	}
 
 	private void intializeControllerNode() throws IOException {
@@ -188,24 +201,20 @@ public class ControllerNode implements Node {
 		controllerNode.returnTheChunkServer();
 	}
 	
-	public Command collectchunkNodeFileDetailsforclientRequest(ControllerNodeFileAndNodeInfoCommnad command)
+	public Command collectchunkNodeFileDetailsforclientRequest(FileInfoCommnad command)
 	{
-		//1..
-		
-		String requestedFile ="";
-		requestedFile = command.fileName;
-		
-		if(requestedFile !=null && requestedFile.length()>0 && fileInfoCollection.size()>0)
-		{
-			FileInfo fileobj=null;
-			fileobj=fileInfoCollection.get(requestedFile);
-			
-
-		return new Response(true,fileobj.chunkNodeIP +":"+String.valueOf(fileobj.chunkNodePORT) +":"+ fileobj.checkSumID);
-
+		String requestedFile = command.fileName;
+		if(requestedFile==null || requestedFile.trim().isEmpty()) {
+		   return new Response(false, "filename is mandatory field.");
 		}
-			
-		return null;
+		
+		FileInfo fileInfo = fileInfoMap.get(requestedFile);
+		if(fileInfo==null) {
+             return new Response(false, "No information found for file.");
+          } else {
+             String chunkFileNames = ChunkFileUtility.join(fileInfo.chunkFileNames, ",");
+             return new Response(true, fileInfo.chunkNodeIP +":"+String.valueOf(fileInfo.chunkNodePORT) +":"+ chunkFileNames);
+          }
 	}
 	
 
@@ -223,9 +232,9 @@ public class ControllerNode implements Node {
 		if (command instanceof ChunkNodeFileInfoCommand) {
 			return collectchunkNodeFileDetails((ChunkNodeFileInfoCommand) command);
 		}
-		if (command instanceof ControllerNodeFileAndNodeInfoCommnad)
+		if (command instanceof FileInfoCommnad)
 		{
-			return collectchunkNodeFileDetailsforclientRequest((ControllerNodeFileAndNodeInfoCommnad) command);
+			return collectchunkNodeFileDetailsforclientRequest((FileInfoCommnad) command);
 		}
 		/*
 		 * Command response = new NodeDetails("", -1, -1, true, "Nothing"); if

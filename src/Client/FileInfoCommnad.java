@@ -6,15 +6,14 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ControllerNodeFileAndNodeInfoCommnad implements Command {
-	public static final String cmd = "CMD_CONTROLLER_NODE_FILE_INFO";
+public class FileInfoCommnad implements Command {
+	public static final String cmd = "CMD_FileInfoCommnad";
 	public String fileName;
-	
 
-	public ControllerNodeFileAndNodeInfoCommnad() {
+	public FileInfoCommnad() {
 	}
 
-	public ControllerNodeFileAndNodeInfoCommnad(String strfileName) {
+	public FileInfoCommnad(String strfileName) {
 		super();
 		this.fileName = strfileName;
 
