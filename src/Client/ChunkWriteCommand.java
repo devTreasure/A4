@@ -5,10 +5,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import ChunkServer.ChunkFileUtility;
 import ChunkServer.ChunkServer;
 
 public class ChunkWriteCommand implements Command {
@@ -35,7 +35,7 @@ public class ChunkWriteCommand implements Command {
       ByteArrayOutputStream baOutputStream = null;
       DataOutputStream dout = null;
       byte[] fileBytes = null;
-      
+
       try {
          fileBytes = Files.readAllBytes(chunk.toPath());
 
@@ -104,23 +104,13 @@ public class ChunkWriteCommand implements Command {
             + chunkName + "]";
    }
 
-
    public void writeChunkFile(String directoryName, byte[] fileBytes) {
-      FileOutputStream fos = null;
       try {
          chunk = new File(directoryName, chunkName);
-         fos = new FileOutputStream(chunk);
-         fos.write(fileBytes);
-         fos.close();
+         ChunkFileUtility.addSha1AndWriteChunk(fileBytes, chunk);
          System.out.println("Chunk writen: " + chunk.getAbsolutePath());
       } catch (Exception e) {
          e.printStackTrace();
-      } finally {
-         try {
-            fos.close();
-         } catch (IOException e) {
-            e.printStackTrace();
-         }
       }
    }
 
