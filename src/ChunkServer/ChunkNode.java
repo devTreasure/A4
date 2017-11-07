@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +56,10 @@ public class ChunkNode implements Node {
 	public ServerSocket serverSocket;
 	public static String filePATH = "D:\\Temp\\chunkServer\\out";
 	public ArrayList<String> fileCollection = new ArrayList<String>();
+	public String folderPATH = "D:\\tmp\\chunkServer\\";
 
+	public String chunkNodefolderPATH = "";
+	public String clientNodefolderPATH = "";
 	public String str_SUCC_REQUEST = "SUCC_REQUEST";
 	public String str_RANDOM_REQUEST = "RANDOM_NODE_REQUEST";
 	public String str_RANDOM_RESPONSE = "RANDOM_NODE_RESPONSE";
@@ -139,6 +144,8 @@ public class ChunkNode implements Node {
 	}
 
 	private void intializeChunkNode() throws Exception {
+		try
+		{
 		// 1.Chunk Node is alive
 		ServerSocket sc = new ServerSocket(0);
 		System.out.println("Resolved Host name is :");
@@ -169,15 +176,30 @@ public class ChunkNode implements Node {
 
 		// 5. Send the controller
 		sendtheChunkNodeinfotoController();
+		}
+		catch(Exception ex)
+		{
+			System.out.println(ex.getMessage());
+		}
 	}
 
 	public void sendtheChunkNodeinfotoController() throws Exception {
 		// TODO Auto-generated method stub
+		try
+		{
 		ChunkNodeWentliveRequest livereq = new ChunkNodeWentliveRequest(this.controllerNodeIP, this.controllerNodePORT,
 				this.chunkNodeIP, this.chunkrNodePORT);
 		Command resp = sender.sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, livereq.unpack());
 		Response response = (Response) resp;
 		System.out.println(response.getMessage());
+		}
+		catch (NullPointerException e) {
+			System.out.println(e.getMessage());
+		}
+		catch (ConnectException ex) {
+			System.out.println(ex.getMessage());
+		}
+				
 	}
 
 	public void sendNewFileInfoToController() throws NoSuchAlgorithmException, IOException {
@@ -222,7 +244,8 @@ public class ChunkNode implements Node {
 		} else {
 			ChunkNodeFileInfoCommand cmd = new ChunkNodeFileInfoCommand("MAJOR_HEART_BEAT", 0, this.chunkNodeIP,
 					this.chunkrNodePORT, allFileData, 0);
-			Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT,cmd.unpack());
+			Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT,
+					cmd.unpack());
 
 		}
 	}
@@ -318,10 +341,26 @@ public class ChunkNode implements Node {
 			System.exit(0);
 		}
 
+		boolean isfolderCreated = false;
+
 		ChunkNode chunkNode = new ChunkNode();
 
 		chunkNode.controllerNodeIP = controllerIP;
 		chunkNode.controllerNodePORT = controllerNodePORT;
+
+		while (!isfolderCreated) {
+			System.out.println("PLEAE ENTER FOLDER PAHT e.g. CS1,CS2 etc");
+			BufferedReader brx = new BufferedReader(new InputStreamReader(System.in));
+
+			String folder_path = brx.readLine();
+
+			System.out.println("Received Folder path  is:" + folder_path);
+			System.out.println("Folder path :" + chunkNode.folderPATH);
+
+			isfolderCreated = chunkNode.createInDirectory(folder_path);
+			isfolderCreated = chunkNode.createOutDirectory(folder_path);
+
+		}
 
 		chunkNode.intializeChunkNode();
 
@@ -356,6 +395,60 @@ public class ChunkNode implements Node {
 		}
 
 		System.out.println("Bye.");
+	}
+
+	public boolean createInDirectory(String folderName) {
+		boolean folderCreated = false;
+		if (folderName.length() > 0) {
+
+			String strFileIN = this.folderPATH +folderName+ "\\in";
+
+			File fileIn = new File(strFileIN);
+
+			if (!fileIn.exists()) {
+				boolean done = fileIn.mkdirs();
+				if (done) {
+					folderCreated = done;
+					this.chunkNodefolderPATH=strFileIN;
+					System.out.println("Directory is created ! " + this.chunkNodefolderPATH);
+					
+				} else {
+					System.out.println("Failed to create directory ! " + this.chunkNodefolderPATH);
+					folderCreated = false;
+				}
+
+			}
+		}
+		return folderCreated;
+
+	}
+
+	public boolean createOutDirectory(String folderName) {
+
+		boolean folderCreated = false;
+		if (folderName.length() > 0) {
+			
+			String strFileOUT = this.folderPATH +folderName+ "\\out";
+
+			File fileOut = new File(strFileOUT);
+
+			if (!fileOut.exists()) {
+
+				boolean done = fileOut.mkdirs();
+				if (done) {
+					folderCreated = done;
+					this.clientNodefolderPATH=strFileOUT;
+				
+					System.out.println("Directory is created !  " + this.clientNodefolderPATH);
+				}
+
+				else {
+					folderCreated = false;
+					System.out.println("Failed to create directory ! " + strFileOUT);
+				}
+			}
+		}
+		return folderCreated;
 	}
 
 	@Override
@@ -395,7 +488,8 @@ public class ChunkNode implements Node {
 
 		Command writeCommand = null;
 		if (isFileTemperd) {
-			writeCommand = new Response(false, "Tempered:"+command.fileName+":"+command.ipAddress+":"+command.port + ":"+file.getAbsolutePath());
+			writeCommand = new Response(false, "Tempered:" + command.fileName + ":" + command.ipAddress + ":"
+					+ command.port + ":" + file.getAbsolutePath());
 		} else {
 			writeCommand = new ChunkWriteOperationsCommand(command.ipAddress, command.port, command.fileName,
 					file.getName(), file);
@@ -410,8 +504,6 @@ public class ChunkNode implements Node {
 
 		String fileName = command.getFileName();
 		String chunkName = command.getChunkName();
-		String newFile = "";
-		newFile = fileName + " : " + chunkName;
 		newfiles.add(chunkName);
 		// TODO NoOfChunks not sent -- check
 		// fileSpiltInfoInfoCollection.put(fileName, 0);
