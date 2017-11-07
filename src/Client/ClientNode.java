@@ -147,16 +147,17 @@ public class ClientNode implements Node {
             Command resps = new TCPSender().sendAndReceiveData(IP, PORT, chunk2Clientinfo.unpack());
             readResponse=(Response) resps;
             
-            File f =new File(ServerToClientPATH+chunkFileName);
+            File f =new File(ServerToClientPATH+"\\"+chunkFileName);
             fileToBeMerged.add(f);
          }
          if(readResponse.isSuccess())
          {
         	FileSplit objfs=new FileSplit();
-        	objfs.mergeFiles(fileToBeMerged, new File(ServerToClientPATH+filename));
+        	objfs.mergeFiles(fileToBeMerged, new File(ServerToClientPATH+"\\"+filename));
          }
          else
          {
+        	
         	reportContollerAboutFaultyChunkandLocateAndResotreTheFile();
          }
         
