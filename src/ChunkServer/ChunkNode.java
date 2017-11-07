@@ -222,8 +222,7 @@ public class ChunkNode implements Node {
 		} else {
 			ChunkNodeFileInfoCommand cmd = new ChunkNodeFileInfoCommand("MAJOR_HEART_BEAT", 0, this.chunkNodeIP,
 					this.chunkrNodePORT, allFileData, 0);
-			Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT,
-					cmd.unpack());
+			Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT,cmd.unpack());
 
 		}
 	}
@@ -418,7 +417,7 @@ public class ChunkNode implements Node {
 
 		Command writeCommand = null;
 		if (isFileTemperd) {
-			writeCommand = new Response(false, "Chunk file is tempred. " + file.getAbsolutePath());
+			writeCommand = new Response(false, "Tempered:"+command.fileName+":"+command.ipAddress+":"+command.port + ":"+file.getAbsolutePath());
 		} else {
 			writeCommand = new ChunkWriteOperationsCommand(command.ipAddress, command.port, command.fileName,
 					file.getName(), file);

@@ -129,7 +129,9 @@ public class ClientNode implements Node {
       FileInfoCommnad controllerFileInfo = new FileInfoCommnad(filename);
       Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, controllerFileInfo.unpack());
       Response response = (Response) resp;
-
+      
+      Response readResponse=null;
+      ArrayList<File> fileToBeMerged=new ArrayList<File>();
       if (response != null) {
          String message = response.getMessage();
          String[] strChunkNodeInfo = message.split(":");
@@ -139,13 +141,25 @@ public class ClientNode implements Node {
          String IP = strChunkNodeInfo[0].toString();
          int PORT = Integer.parseInt(strChunkNodeInfo[1].toString());
          String[] chunkFiles = strChunkNodeInfo[2].split(",");
-
+         fileToBeMerged.clear();
          for (String chunkFileName : chunkFiles) {
             ChunkFileReadCommand chunk2Clientinfo = new ChunkFileReadCommand(IP, PORT, this.clientNodeIP, this.clientNodePORT, chunkFileName);
             Command resps = new TCPSender().sendAndReceiveData(IP, PORT, chunk2Clientinfo.unpack());
-            System.out.println(resps);
+            readResponse=(Response) resps;
+            
+            File f =new File(ServerToClientPATH+chunkFileName);
+            fileToBeMerged.add(f);
          }
-         //MERGE files
+         if(readResponse.isSuccess())
+         {
+        	FileSplit objfs=new FileSplit();
+        	objfs.mergeFiles(fileToBeMerged, new File(ServerToClientPATH+filename));
+         }
+         else
+         {
+        	reportContollerAboutFaultyChunkandLocateAndResotreTheFile();
+         }
+        
 
       } else {
 
@@ -154,7 +168,12 @@ public class ClientNode implements Node {
    }
 
 
-   private List<File> splitFile(File inputFile) throws Exception {
+   private void reportContollerAboutFaultyChunkandLocateAndResotreTheFile() {
+	// TODO Auto-generated method stub
+	
+}
+
+private List<File> splitFile(File inputFile) throws Exception {
       FileSplit fileSplit = new FileSplit();
       List<File> chunks = fileSplit.splitFile(inputFile);
       return chunks;
