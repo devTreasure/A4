@@ -152,8 +152,16 @@ public class ClientNode implements Node {
          }
          if(readResponse.isSuccess())
          {
+        	 
+        	 //SUCCESS
+        	 
+        	 //Files are copied on the first chink server
+        	 //now replicte the same files on another server.
+        	 
         	FileSplit objfs=new FileSplit();
         	objfs.mergeFiles(fileToBeMerged, new File(ServerToClientPATH+"\\"+filename));
+        	
+        	intitatefileReplicationtoOtherChunk(filename,IP,PORT);
          }
          else
          {
@@ -169,7 +177,14 @@ public class ClientNode implements Node {
    }
 
 
-   private void reportContollerAboutFaultyChunkandLocateAndResotreTheFile() {
+   private void intitatefileReplicationtoOtherChunk(String fileName,String IP,int PORT) {
+	// TODO Auto-generated method stub
+	   //Issue replication command to the chunk node we used to drop the files 
+	   //Also pass the IP-PORT where it need to replicate.
+	
+}
+
+private void reportContollerAboutFaultyChunkandLocateAndResotreTheFile() {
 	// TODO Auto-generated method stub
 	
 }

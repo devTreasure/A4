@@ -280,28 +280,6 @@ public class ChunkNode implements Node {
 			// }
 			String generatedCHeckSumID = "";
 
-			// TemperingUtil temperU = new TemperingUtil();
-
-			// temperU.generateChecksum(this.fileCollection.get(i));
-			/*
-			 * ChunkNodeFileInfoCommand cmd = new
-			 * ChunkNodeFileInfoCommand(this.controllerNodeIP, this.controllerNodePORT,
-			 * this.chunkNodeIP, this.chunkrNodePORT,null , temperU.checkSumID);
-			 * 
-			 * 
-			 */
-
-			// ChunkNodeFileInfoCommand cmd = new
-			// ChunkNodeFileInfoCommand(this.controllerNodeIP,this.controllerNodePORT,
-			// this.chunkNodeIP, this.chunkrNodePORT,null , temperU.checkSumID);
-			// Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP,
-			// this.controllerNodePORT, cmd.unpack());
-
-			// Response response = (Response) resp;
-
-			// System.out.println(response.getMessage());
-
-			// }
 		}
 
 		catch (ConnectException e) {
