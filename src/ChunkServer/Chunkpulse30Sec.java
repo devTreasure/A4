@@ -21,7 +21,7 @@ public class Chunkpulse30Sec implements Runnable {
 
             node.sendchunkkinfoToCOntroller();
 
-            System.out.println("Pulse 30 sec");
+            System.out.println("MINOR PULSE 30 sec");
          } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -32,6 +32,13 @@ public class Chunkpulse30Sec implements Runnable {
             // TODO Auto-generated catch block
             e.printStackTrace();
          }
+         catch(NullPointerException e) {
+        	 System.out.println(e.getMessage());
+        	}
+         catch (Exception e) {
+             // TODO Auto-generated catch block
+        	 System.out.println(e.getMessage());
+          }
       }
    }
 

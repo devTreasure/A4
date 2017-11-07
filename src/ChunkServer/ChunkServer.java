@@ -1,13 +1,13 @@
 package ChunkServer;
 
 public class ChunkServer {
-	
+
 	private String IP;
 	private int PORT;
-	
+
 	public ChunkServer(String ipAddress, int port) {
-	   this.IP=ipAddress;
-	   this.PORT=port;
+		this.IP = ipAddress;
+		this.PORT = port;
 	}
 
 	public String IP() {

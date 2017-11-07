@@ -11,6 +11,9 @@ public class FileMonitor {
 	public Hashtable<String, String> filesHTCollection = new Hashtable<String, String>();
 	public boolean hasFiles = false;
 
+	public static String FILE_PATH = "D:\\Temp\\chunkServer\\out";
+	public static String DRIVE_PATH = "D:";
+
 	public ArrayList<String> fileslist = new ArrayList<String>();
 
 	public FileMonitor() {
@@ -18,26 +21,25 @@ public class FileMonitor {
 	}
 
 	public boolean dofileExists() {
-		File file = new File("D:\\Temp\\chunkServer\\out");
+		File file = new File(FILE_PATH);
 
 		if (file.list().length > 0) {
 
 			this.hasFiles = true;
-			
+
 		} else {
-			
+
 			this.hasFiles = false;
-			
+
 		}
 
 		return this.hasFiles;
 
 	}
-	
-	
+
 	public ArrayList<String> getAllfilesInfoOnChunkServer() {
-		
-		File file = new File("D:\\Temp\\chunkServer\\out");
+
+		File file = new File(FILE_PATH);
 
 		if (file.list().length > 0) {
 
@@ -59,18 +61,17 @@ public class FileMonitor {
 					}
 				}
 			}
-	
 
 		}
-		
+
 		return this.fileslist;
 	}
 
-
 	public void fileExists() {
-		File file = new File("D:\\Temp\\chunkServer\\out");
 
-		File filespace = new File("D:");
+		File file = new File(FILE_PATH);
+
+		File filespace = new File(DRIVE_PATH);
 
 		long totalSpace = filespace.getTotalSpace(); // total disk space in bytes.
 		long usableSpace = filespace.getUsableSpace(); /// unallocated / free disk space in bytes.
@@ -79,7 +80,6 @@ public class FileMonitor {
 		System.out.println("Total Space (mb) : " + totalSpace / 1024 / 1024);
 		System.out.println("Total usable Space (mb) : " + totalSpace / 1024 / 1024);
 		System.out.println("Total free Space (mb) : " + totalSpace / 1024 / 1024);
-
 
 	}
 

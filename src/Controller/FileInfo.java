@@ -52,5 +52,8 @@ public class FileInfo {
       return true;
    }
 
-   
+	@Override
+	public String toString() {
+		return "FileInfo [ fileName= "+fileName + ", chunkFileNames=" + chunkFileNames + "chunkNodeIP= "+ chunkNodeIP +", port=" + chunkNodePORT + "]";
+	}
 }

@@ -14,7 +14,7 @@ import ChunkServer.ChunkServer;
 public class ChunkWriteCommand implements Command {
 
    public static final String cmd = "CMD_CHUNK_WRITE_COMMAND";
-
+   public static String File_PATH= "D:\\Temp\\chunkServer\\out\\";
    private ChunkServer target;
    private String fileName;
    private String chunkName;
@@ -85,7 +85,7 @@ public class ChunkWriteCommand implements Command {
          int fileBytesSize = din.readInt();
          byte[] fileBytes = new byte[fileBytesSize];
          din.readFully(fileBytes);
-         writeChunkFile("D:\\Temp\\chunkServer\\out\\", fileBytes);
+         writeChunkFile(File_PATH, fileBytes);
       } catch (IOException e) {
          e.printStackTrace();
       }

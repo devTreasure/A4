@@ -108,6 +108,9 @@ public class ControllerNode implements Node {
 	
 	public Command collectchunkNodeFileDetails(ChunkNodeFileInfoCommand command) {
 		
+		if(command!=null && command.allFileData.length()>0)
+		{
+			
          System.out.println(command.allFileData + ":" + command.checksumID);
    
          //// f1|f1c1:f1c2:f1c3 ? f2|f2c1:f2c2 ?
@@ -117,38 +120,37 @@ public class ControllerNode implements Node {
             String fileName = fileDetail[0];
             String[] chunks = fileDetail[1].split(":");
             FileInfo fileInfo = new FileInfo(fileName, chunks, command.chunkIP, command.chunkPORT);
-            System.out.println(fileInfo);
-            fileInfoMap.put(fileName, fileInfo);
+            
+            if(command.ipAddress.equalsIgnoreCase("MAJOR_HEART_BEAT"))
+            {
+            	 System.out.println("******MAJOR HEART BEAT***********");
+                 System.out.println(fileInfo);
+                 System.out.println("******END MAJOR HEART BEAT***********");
+                 fileInfoMap.put(fileName, fileInfo);
+            }
+            else
+            {
+            	System.out.println(fileInfo);
+            	fileInfoMap.put(fileName, fileInfo);
+            }
          }
          return new Response(true, "chunk file info recevied by controller");
-//
-//		if (command != null)
-//
-//		{
-//			fileDetails.chunkNodeIP = command.chunkIP;
-//			fileDetails.chunkNodePORT = command.chunkPORT;
-//			fileDetails.fileName = command.allFileData;
-//			fileDetails.checkSumID = command.checksumID;
-//
-//			fileInfoCollection.put(command.allFileData, fileDetails);
-//			
-//		    String[] fileSplit=command.allFileData.split("_");
-//		    
-//		    
-////			System.out.println("----Stronly typed file INFO collection---");
-//			System.out.println(fileInfoCollection.size());
-//
-//	
-//            
-//			chunkServerFileInfoCollection.put(command.allFileData, command.checksumID);
-//			
-//			System.out.println("File Collection size :" + chunkServerFileInfoCollection.size());
-//
-//			return new Response(true, "chunk file info recevied by controller");
-//
-//		}
-//
-//		return new Response(true, "spmething went wrong with ChunkNodeFileInfoCommand");
+		}
+		else
+		{
+	       if(command.ipAddress.equalsIgnoreCase("MAJOR_HEART_BEAT"))
+	        {
+	            	 System.out.println("******MAJOR HEART BEAT***********");
+	            	 System.out.println("No new files being added recntly on Chunkserver");
+	            	
+	        }
+	       else
+	       {
+	    	   System.out.println("No new files being added recntly on Chunkserver");
+	       }
+	       return new Response(true, "*** No new files ADDED to chunk Server ***");
+		}
+
 	}
 
 	private void intializeControllerNode() throws IOException {
@@ -182,16 +184,7 @@ public class ControllerNode implements Node {
 			String exitStr = br.readLine();
 			System.out.println("Received command is:" + exitStr);
 			System.out.println("NO READ WRITE OPS ON CONTROLLER TERMINAL");
-/*			if (EXIT_COMMAND.equalsIgnoreCase(exitStr)) {
-				ControllerNode.continueOperation = false;
-				System.out.println("Exiting.");
-			} else if (WRITE_COMMAND.equalsIgnoreCase("write")) {
-				System.out.println("Write operation is performed");
-				return3AvailableChunkServers(controllerNode);
-			} else if (READ_COMMAND.equalsIgnoreCase("read")) {
-				System.out.println("read operation is performed");
-			} */
-			
+
 		}
 
 		System.out.println("Bye.");

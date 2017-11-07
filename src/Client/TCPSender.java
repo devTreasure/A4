@@ -3,12 +3,14 @@ package Client;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 
 public class TCPSender {
 
-   public Command sendAndReceiveData(String hostIp, int hostPort, byte[] data) {
+   public Command sendAndReceiveData(String hostIp, int hostPort, byte[] data) throws UnknownHostException, IOException {
       Socket socket = null;
       BufferedOutputStream dout = null;
       Command response = null;
@@ -21,13 +23,31 @@ public class TCPSender {
          dout.flush();
          // read and parse response
          response = CommandFactory.process(socket);
-      } catch (Exception e) {
-         e.printStackTrace();
-      } finally {
+      } 
+      catch(ConnectException e)
+      {
+    	  System.out.println("Connection forcibaly closed or shut down might have happned on remote machine...");
+      }
+      catch(Exception e)
+      {
+    	  System.out.println(e.getMessage());
+      }
+      
+      finally {
          try {
             dout.close();
             socket.close();
-         } catch (Exception e) {
+         }
+         catch (ConnectException e) {
+             // TODO Auto-generated catch block
+        	 System.out.println(e.getMessage());
+        	 System.out.println("Connection forcibaly closed or shut down might have happned on remote machine...");
+          }
+         catch(NullPointerException e)
+         {
+        	 System.out.println(e.getMessage());
+         }
+         catch (Exception e) {
             e.printStackTrace();
          }
       }
@@ -52,7 +72,13 @@ public class TCPSender {
       try {
          dout = new BufferedOutputStream(socket.getOutputStream());
          dout.write(data);
-      } catch (IOException e) {
+      } 
+      catch(ConnectException e)
+      {
+    	  System.out.println("Connection forcibaly closed or shut down might have happned on remote machine...");
+      }
+      
+      catch (IOException e) {
          e.printStackTrace();
       } finally {
          dout.close();

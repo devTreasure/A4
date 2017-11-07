@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public class ClientNode implements Node {
    public static final String WRITE_COMMAND = "write";
    public static final String READ_COMMAND = "read";
    public static final String THREE_SERVERS = "3servers";
+   public static final String ServerToClientPATH = "D:\\Temp\\chunkServerToClient";
    public static boolean continueOperations = true;
 
    public String clientNodeIP = "";
@@ -120,7 +122,7 @@ public class ClientNode implements Node {
       writeFiletoChunkNode(file, chunks);
    }
 
-   public void readFileFromChunkServer(String filename) {
+   public void readFileFromChunkServer(String filename) throws UnknownHostException, IOException {
       // TODO Auto-generated method stub
       System.out.println("File to be read is :" + filename);
 
@@ -168,9 +170,11 @@ public class ClientNode implements Node {
     * Chink server will check if i am not the target(using IP + PORT) then write to that target.
     * 
     * @param file
+ * @throws IOException 
+ * @throws UnknownHostException 
     * 
     */
-   public void writeFiletoChunkNode(File file, List<File> chunks) {
+   public void writeFiletoChunkNode(File file, List<File> chunks) throws UnknownHostException, IOException {
       if (chunkServers.isEmpty()) {
          System.out.println("Can not find any chunk server.");
       } else {
@@ -240,16 +244,16 @@ public class ClientNode implements Node {
 
       // TODO Auto-generated method stub
       System.out.println("---" + command);
-      File f = new File("D:\\Temp\\chunkServerToClient");
+      File f = new File(ServerToClientPATH);
       String[] files = f.list();
       if (files.length == this.totalChunks) {
          for (String string : files) {
-            File fs = new File("D:\\Temp\\chunkServerToClient\\" + string);
+            File fs = new File(ServerToClientPATH + string);
             filex.add(fs);
          }
 
          FileSplit s = new FileSplit();
-         s.mergeFiles(filex, new File("D:\\Temp\\chunkServerToClient\\" + command.fileName));
+         s.mergeFiles(filex, new File(ServerToClientPATH + command.fileName));
       }
 
       return new Response(true, "File received on client side from chunk server.");
