@@ -70,7 +70,7 @@ public class ChunkNode implements Node {
 	}
 
 	public Command storetheFile(ChunkNodeFileStoreCommand command) {
-		FileMonitor fmonitor = new FileMonitor();
+		FileMonitor fmonitor = new FileMonitor(directoryName);
 		ArrayList<String> filesList = null;
 		boolean hasfiles = fmonitor.dofileExists();
 
@@ -89,7 +89,7 @@ public class ChunkNode implements Node {
 	}
 
 	public Command collectfilesInfo(ChunkNodeFileInfoCommand command) {
-		FileMonitor fmonitor = new FileMonitor();
+		FileMonitor fmonitor = new FileMonitor(directoryName);
 		ArrayList<String> filesList = null;
 		boolean hasfiles = fmonitor.dofileExists();
 
@@ -113,7 +113,7 @@ public class ChunkNode implements Node {
 
 	public void chunkServerStatistics() {
 		this.fileCollection.clear();
-		FileMonitor fmonitor = new FileMonitor();
+		FileMonitor fmonitor = new FileMonitor(directoryName);
 		ArrayList<String> filesList = null;
 		boolean hasfiles = fmonitor.dofileExists();
 

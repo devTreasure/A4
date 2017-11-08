@@ -11,13 +11,13 @@ public class FileMonitor {
 	public Hashtable<String, String> filesHTCollection = new Hashtable<String, String>();
 	public boolean hasFiles = false;
 
-	public static String FILE_PATH = "D:\\Temp\\chunkServer\\out";
+	public String FILE_PATH = "NOT_SPECIFIED";
 	public static String DRIVE_PATH = "D:";
 
 	public ArrayList<String> fileslist = new ArrayList<String>();
 
-	public FileMonitor() {
-
+	public FileMonitor(String directoryPath) {
+	   this.FILE_PATH = directoryPath;
 	}
 
 	public boolean dofileExists() {
