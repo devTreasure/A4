@@ -1,12 +1,15 @@
 package Client;
 
 import java.io.DataInputStream;
-import java.io.IOException;
 import java.net.Socket;
 
 public class CommandFactory {
 
-	public static Command process(Socket socket) {
+   public static Command process(Socket socket) {
+      return process(socket, "");
+   }
+   
+	public static Command process(Socket socket, String directoryPath) {
 
 		Command cmd = null;
 		DataInputStream din = null;
@@ -53,9 +56,9 @@ public class CommandFactory {
 				cmd = chunkNodePollingCmd;
 			} else if (ChunkWriteCommand.cmd.equals(str_request_type)) {
 				ChunkWriteCommand chunkWriteCommand = new ChunkWriteCommand();
+				chunkWriteCommand.directoryName = directoryPath;
 				chunkWriteCommand.pack(din);
 				cmd = chunkWriteCommand;
-			
 			} else {
 				System.out.println("ERROR: UNKNOWN COMMAND. " + str_request_type);
 			}

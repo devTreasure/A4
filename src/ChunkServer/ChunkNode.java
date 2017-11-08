@@ -34,6 +34,7 @@ public class ChunkNode implements Node {
 	public ArrayList<String> newfiles = new ArrayList<String>();
 	public String controllerNodeIP;
 	public int controllerNodePORT;
+	public static String directoryName = "PLEASE SPECIFY FILE STORAGE PATH";
 
 	public String chunkNodeIP;
 	public int chunkrNodePORT;
@@ -49,9 +50,8 @@ public class ChunkNode implements Node {
 	public String str_getChunkServer_Request = "GET_3_CHUNK_SERVERS";
 	public String chunkserverNodeName;
 	public ServerSocket serverSocket;
-	public static String filePATH = "D:\\Temp\\chunkServer\\out";
 	public ArrayList<String> fileCollection = new ArrayList<String>();
-	public String folderPATH = "D:\\tmp\\chunkServer\\";
+//	public String folderPATH = "D:\\tmp\\chunkServer\\";
 
 	public String chunkNodefolderPATH = "";
 	public String clientNodefolderPATH = "";
@@ -320,8 +320,8 @@ public class ChunkNode implements Node {
 		int controllerNodePORT = 0;
 		String controllerIP = "";
 
-		if (args.length < 2) {
-			System.out.println("Exa: java A2.Node <Controller NODE IP> <Controller NODE PORT>");
+		if (args.length < 3) {
+			System.out.println("Exa: java A4.ChunkNode <Controller NODE IP> <Controller NODE PORT> <FILE_STORAGE>");
 			System.exit(0);
 		}
 
@@ -330,6 +330,21 @@ public class ChunkNode implements Node {
 			InetAddress ipaddress = InetAddress.getLocalHost();// InetAddress.getByName(strIP);
 			System.out.println("IP address: " + ipaddress.getHostAddress());
 			controllerNodePORT = Integer.parseInt(args[1]);
+			directoryName = args[2];
+			File fileStorageDirectory = new File(directoryName);
+			if(!fileStorageDirectory.exists()) {
+			   System.out.println("Directory does not exist. Creating one");
+			   fileStorageDirectory.mkdirs();
+			   //check if created or not.
+			   if(fileStorageDirectory.exists() && fileStorageDirectory.isDirectory()) {
+			      System.out.println("File storage created at :" + fileStorageDirectory);
+			   } else {
+			      System.out.println("Error creating File storageat :" + fileStorageDirectory);
+			      System.out.println("Exiting. Please create directory and then start.");
+			      System.exit(0);
+			   }
+			}
+			
 
 		} catch (Exception e) {
 			System.out.println("Error: " + e.getMessage());
@@ -343,19 +358,19 @@ public class ChunkNode implements Node {
 		chunkNode.controllerNodeIP = controllerIP;
 		chunkNode.controllerNodePORT = controllerNodePORT;
 
-		while (!isfolderCreated) {
-			System.out.println("PLEAE ENTER FOLDER PAHT e.g. CS1,CS2 etc");
-			BufferedReader brx = new BufferedReader(new InputStreamReader(System.in));
-
-			String folder_path = brx.readLine();
-
-			System.out.println("Received Folder path  is:" + folder_path);
-			System.out.println("Folder path :" + chunkNode.folderPATH);
-
-			isfolderCreated = chunkNode.createInDirectory(folder_path);
-			isfolderCreated = chunkNode.createOutDirectory(folder_path);
-
-		}
+//		while (!isfolderCreated) {
+//			System.out.println("PLEAE ENTER FOLDER PAHT e.g. CS1,CS2 etc");
+//			BufferedReader brx = new BufferedReader(new InputStreamReader(System.in));
+//
+//			String folder_path = brx.readLine();
+//
+//			System.out.println("Received Folder path  is:" + folder_path);
+//			System.out.println("Folder path :" + chunkNode.folderPATH);
+//
+//			isfolderCreated = chunkNode.createInDirectory(folder_path);
+//			isfolderCreated = chunkNode.createOutDirectory(folder_path);
+//
+//		}
 
 		chunkNode.intializeChunkNode();
 
@@ -392,59 +407,59 @@ public class ChunkNode implements Node {
 		System.out.println("Bye.");
 	}
 
-	public boolean createInDirectory(String folderName) {
-		boolean folderCreated = false;
-		if (folderName.length() > 0) {
+//	public boolean createInDirectory(String folderName) {
+//		boolean folderCreated = false;
+//		if (folderName.length() > 0) {
+//
+//			String strFileIN = this.folderPATH +folderName+ "\\in";
+//
+//			File fileIn = new File(strFileIN);
+//
+//			if (!fileIn.exists()) {
+//				boolean done = fileIn.mkdirs();
+//				if (done) {
+//					folderCreated = done;
+//					this.chunkNodefolderPATH=strFileIN;
+//					System.out.println("Directory is created ! " + this.chunkNodefolderPATH);
+//					
+//				} else {
+//					System.out.println("Failed to create directory ! " + this.chunkNodefolderPATH);
+//					folderCreated = false;
+//				}
+//
+//			}
+//		}
+//		return folderCreated;
+//
+//	}
 
-			String strFileIN = this.folderPATH +folderName+ "\\in";
-
-			File fileIn = new File(strFileIN);
-
-			if (!fileIn.exists()) {
-				boolean done = fileIn.mkdirs();
-				if (done) {
-					folderCreated = done;
-					this.chunkNodefolderPATH=strFileIN;
-					System.out.println("Directory is created ! " + this.chunkNodefolderPATH);
-					
-				} else {
-					System.out.println("Failed to create directory ! " + this.chunkNodefolderPATH);
-					folderCreated = false;
-				}
-
-			}
-		}
-		return folderCreated;
-
-	}
-
-	public boolean createOutDirectory(String folderName) {
-
-		boolean folderCreated = false;
-		if (folderName.length() > 0) {
-			
-			String strFileOUT = this.folderPATH +folderName+ "\\out";
-
-			File fileOut = new File(strFileOUT);
-
-			if (!fileOut.exists()) {
-
-				boolean done = fileOut.mkdirs();
-				if (done) {
-					folderCreated = done;
-					this.clientNodefolderPATH=strFileOUT;
-				
-					System.out.println("Directory is created !  " + this.clientNodefolderPATH);
-				}
-
-				else {
-					folderCreated = false;
-					System.out.println("Failed to create directory ! " + strFileOUT);
-				}
-			}
-		}
-		return folderCreated;
-	}
+//	public boolean createOutDirectory(String folderName) {
+//
+//		boolean folderCreated = false;
+//		if (folderName.length() > 0) {
+//			
+//			String strFileOUT = this.folderPATH +folderName+ "\\out";
+//
+//			File fileOut = new File(strFileOUT);
+//
+//			if (!fileOut.exists()) {
+//
+//				boolean done = fileOut.mkdirs();
+//				if (done) {
+//					folderCreated = done;
+//					this.clientNodefolderPATH=strFileOUT;
+//				
+//					System.out.println("Directory is created !  " + this.clientNodefolderPATH);
+//				}
+//
+//				else {
+//					folderCreated = false;
+//					System.out.println("Failed to create directory ! " + strFileOUT);
+//				}
+//			}
+//		}
+//		return folderCreated;
+//	}
 
 	@Override
 	public Command notify(Command command) throws Exception {
@@ -495,8 +510,11 @@ public class ChunkNode implements Node {
 	}
 
 	private Command chunkReceived(ChunkWriteCommand command) {
-		System.out.println("---" + command);
+		
+	   System.out.println("---" + command);
 
+		
+		
 		String fileName = command.getFileName();
 		String chunkName = command.getChunkName();
 		newfiles.add(chunkName);
