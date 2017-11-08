@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ChunkServer.ChunkServer;
@@ -229,6 +230,7 @@ public class ClientNode implements Node {
       // now replicte the same files on another server.
       FileSplit objfs = new FileSplit();
       File mergerdFile = new File(ServerToClientPATH, filename);
+      Collections.sort(fileToBeMerged);
       objfs.mergeFiles(fileToBeMerged, mergerdFile);
       System.out.println("File merged at:" + mergerdFile.getAbsolutePath());
 

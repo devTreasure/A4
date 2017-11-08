@@ -2,6 +2,8 @@ package ChunkServer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.regex.Matcher;
 
 public class Hello {
@@ -52,6 +54,20 @@ public class Hello {
         String[] split = input.split("\\|");
         System.out.println(split[0]);
         System.out.println(split[1]);
+        
+        ArrayList<File> arrayList = new ArrayList<>();
+        arrayList.add(new File("D:\\Temp\\chunkServer\\toclient\\logs2808_FullGC_part.log_chunk.002"));
+        arrayList.add(new File("D:\\Temp\\chunkServer\\toclient\\logs2808_FullGC_part.log_chunk.001"));
+        
+        for (File file : arrayList) {
+           System.out.println(file);
+        }
+        
+        Collections.sort(arrayList);
+        
+        for (File file : arrayList) {
+           System.out.println(file);
+        }
         
 	}
 
