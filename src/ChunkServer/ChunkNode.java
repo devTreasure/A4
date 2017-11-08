@@ -521,23 +521,29 @@ public class ChunkNode implements Node {
 		
 		//if command has replication information then write to other chunks,
 		String replicationNodes = command.getReplicationNodes();
-		String[] nodes = replicationNodes.split(",");
-		for (String eachNode : nodes) {
-            String[] nodeInfo = eachNode.split(":");
-            ChunkServer replicationNode = new ChunkServer(nodeInfo[0],  Integer.parseInt(nodeInfo[1]));
-            ChunkWriteCommand replicationWrite = new ChunkWriteCommand(replicationNode, fileName, chunkName, command.getChunk(), "");
-            try {
-               Response response = (Response) sender.sendAndReceiveData(replicationNode.IP(), replicationNode.PORT(), replicationWrite.unpack());
-               if(response.isSuccess()) {
-                  System.out.println("SUCCESS: Chunk " + chunkName + " replicated to:" + replicationNodes);
-               } else {
-                  System.out.println("Failure: Chunk " + chunkName + " replicated to:" + replicationNodes);
-               }
-            } catch (Exception e) {
-               e.printStackTrace();
-               System.out.println("ERROR: Chunk " + chunkName + " replicated to:" + replicationNodes);
-            }
-         }
+		if(!replicationNodes.trim().isEmpty()) {
+	          String[] nodes = replicationNodes.split(",");
+	          if(nodes.length == 0) {
+	             System.out.println("Replication details not found");
+	          } else {
+	             for (String eachNode : nodes) {
+	                 String[] nodeInfo = eachNode.split(":");
+	                 ChunkServer replicationNode = new ChunkServer(nodeInfo[0],  Integer.parseInt(nodeInfo[1]));
+	                 ChunkWriteCommand replicationWrite = new ChunkWriteCommand(replicationNode, fileName, chunkName, command.getChunk(), "");
+	                 try {
+	                    Response response = (Response) sender.sendAndReceiveData(replicationNode.IP(), replicationNode.PORT(), replicationWrite.unpack());
+	                    if(response.isSuccess()) {
+	                       System.out.println("SUCCESS: Chunk " + chunkName + " replicated to:" + replicationNodes);
+	                    } else {
+	                       System.out.println("Failure: Chunk " + chunkName + " replicated to:" + replicationNodes);
+	                    }
+	                 } catch (Exception e) {
+	                    e.printStackTrace();
+	                    System.out.println("ERROR: Chunk " + chunkName + " replicated to:" + replicationNodes);
+	                 }
+	              }
+	          }
+		}
 		
 		return new Response(true, "File received.");
 	}

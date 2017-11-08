@@ -215,13 +215,17 @@ private List<File> splitFile(File inputFile) throws Exception {
          ChunkServer toChunkServer = chunkServers.get(0);
 
          String replicationNodes = "";
-         if(chunkServers.size() > 1) {
-            System.out.println("Replication nodes available.");
+         if(chunkServers.size() == 1) {
+            System.out.println("Replication nodes NOT available.");
          } else {
-            for (ChunkServer eachChunkServer : chunkServers) {
+            
+            //first node is self node. Should not replicate
+            for (int i = 1; i < chunkServers.size(); i++) {
+               ChunkServer eachChunkServer = chunkServers.get(i);
                replicationNodes += "," + eachChunkServer.IP()+":" + eachChunkServer.PORT();
             }
             replicationNodes = replicationNodes.replaceFirst(",", "");
+            System.out.println("Replication nodes :" + replicationNodes);
          }
          
          for (File eachChunk : chunks) {
