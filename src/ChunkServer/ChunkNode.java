@@ -527,7 +527,7 @@ public class ChunkNode implements Node {
 	             for (String eachNode : nodes) {
 	                 String[] nodeInfo = eachNode.split(":");
 	                 ChunkServer replicationNode = new ChunkServer(nodeInfo[0],  Integer.parseInt(nodeInfo[1]));
-	                 ChunkWriteCommand replicationWrite = new ChunkWriteCommand(replicationNode, fileName, chunkName, command.getChunk(), "");
+	                 ChunkWriteCommand replicationWrite = new ChunkWriteCommand(replicationNode, fileName, chunkName, command.getChunk(), "", true);
 	                 try {
 	                    Response response = (Response) sender.sendAndReceiveData(replicationNode.IP(), replicationNode.PORT(), replicationWrite.unpack());
 	                    if(response.isSuccess()) {

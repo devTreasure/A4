@@ -288,7 +288,7 @@ private List<File> splitFile(File inputFile) throws Exception {
          for (File eachChunk : chunks) {
             ChunkWriteCommand command = 
                 new ChunkWriteCommand(
-                   toChunkServer, file.getName(), eachChunk.getName(), eachChunk, replicationNodes);
+                   toChunkServer, file.getName(), eachChunk.getName(), eachChunk, replicationNodes, false);
             sender.sendAndReceiveData(toChunkServer.IP(), toChunkServer.PORT(), command.unpack());
          }
       }

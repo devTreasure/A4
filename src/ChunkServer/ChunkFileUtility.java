@@ -6,67 +6,83 @@ import java.io.RandomAccessFile;
 
 public class ChunkFileUtility {
 
-	public static String addSha1AndWriteChunk(byte[] b, File file) throws Exception {
+   public static String addSha1AndWriteChunk(byte[] b, File file) throws Exception {
 
-		String sha1ID = TemperingUtil.generateChecksumOfAllBytes(b);
+      String sha1ID = TemperingUtil.generateChecksumOfAllBytes(b);
 
-		FileOutputStream fos = new FileOutputStream(file);
-		byte[] sha1Bytes = sha1ID.getBytes();
-		System.out.println(sha1Bytes.length);
-		System.out.println(b.length);
-		fos.write(sha1Bytes);
-		fos.write(b);
-		System.out.println(file.length());
-		fos.close();
+      FileOutputStream fos = new FileOutputStream(file);
+      byte[] sha1Bytes = sha1ID.getBytes();
+      System.out.println(sha1Bytes.length);
+      System.out.println(b.length);
+      fos.write(sha1Bytes);
+      fos.write(b);
+      System.out.println(file.length());
+      fos.close();
 
-		return sha1ID;
-	}
+      return sha1ID;
+   }
 
-	public static String readSha1(String path) throws Exception {
-		RandomAccessFile raf = new RandomAccessFile(path, "r");
+   public static String writeChunk(byte[] b, File file) throws Exception {
 
-		// 160 bit sha has 20 bytes - 40 HEX digits numerical value
-		// So it translates into 40 byte string.
-		raf.seek(0);
-		byte[] shaBytes = new byte[40];
-		raf.readFully(shaBytes);
-		String storedSha1Id = new String(shaBytes);
-		System.out.println("storedSha1Id :" + storedSha1Id);
-		return storedSha1Id;
+      String sha1ID = TemperingUtil.generateChecksumOfAllBytes(b);
 
-	}
+      FileOutputStream fos = new FileOutputStream(file);
+      System.out.println(b.length);
+      fos.write(b);
+      System.out.println(file.length());
+      fos.close();
 
-	public static byte[] fileContentWithoutSha1(String path) throws Exception {
-	   return fileContentWithoutSha1(new File(path));
-	}
-	public static byte[] fileContentWithoutSha1(File f) throws Exception {
-		byte[] data = new byte[0];
-		RandomAccessFile raf = null;
+      return sha1ID;
+   }
 
-		try {
-			System.out.println("Rading file: " + f.getAbsolutePath() + ", Exists:[" + f.exists() + "]");
+   public static String readSha1(String path) throws Exception {
+      RandomAccessFile raf = new RandomAccessFile(path, "r");
 
-			// 160 bit sha has 20 bytes - 40 HEX digits numerical value
-			// So it translates into 40 byte string.
-			
-			// raf.seek(0);
-			// byte[] shaBytes = new byte[40];
-			// raf.readFully(shaBytes);
-			// String storedSha1Id = new String(shaBytes);
-			
-			raf = new RandomAccessFile(f, "r");
-			long contentLength = f.length() - 40;
-			System.out.println("File content length" + f.length() + ", will be readinf minus 40 bytes:" + contentLength);
-			data = new byte[(int) contentLength];
-			raf.seek(40);
-			raf.read(data, 0, data.length);
-		} catch (Exception e) {
-			raf.close();
-		}
-		
-		return data;
-	}
-	
+      // 160 bit sha has 20 bytes - 40 HEX digits numerical value
+      // So it translates into 40 byte string.
+      raf.seek(0);
+      byte[] shaBytes = new byte[40];
+      raf.readFully(shaBytes);
+      String storedSha1Id = new String(shaBytes);
+      System.out.println("storedSha1Id :" + storedSha1Id);
+      return storedSha1Id;
+
+   }
+
+   public static byte[] fileContentWithoutSha1(String path) throws Exception {
+      return fileContentWithoutSha1(new File(path));
+   }
+
+   public static byte[] fileContentWithoutSha1(File f) throws Exception {
+      byte[] data = new byte[0];
+      RandomAccessFile raf = null;
+
+      try {
+         System.out
+               .println("Rading file: " + f.getAbsolutePath() + ", Exists:[" + f.exists() + "]");
+
+         // 160 bit sha has 20 bytes - 40 HEX digits numerical value
+         // So it translates into 40 byte string.
+
+         // raf.seek(0);
+         // byte[] shaBytes = new byte[40];
+         // raf.readFully(shaBytes);
+         // String storedSha1Id = new String(shaBytes);
+
+         raf = new RandomAccessFile(f, "r");
+         long contentLength = f.length() - 40;
+         System.out.println("File content length" + f.length() + ", will be readinf minus 40 bytes:"
+               + contentLength);
+         data = new byte[(int) contentLength];
+         raf.seek(40);
+         raf.read(data, 0, data.length);
+      } catch (Exception e) {
+         raf.close();
+      }
+
+      return data;
+   }
+
 
 
    public static String join(String[] str, String separator) {

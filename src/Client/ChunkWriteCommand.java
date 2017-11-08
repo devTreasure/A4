@@ -20,13 +20,15 @@ public class ChunkWriteCommand implements Command {
    private String chunkName;
    private File chunk;
    private String replicationNodes;
+   private boolean isReplicatingFile;
 
-   public ChunkWriteCommand(ChunkServer target, String fileName, String chunkName, File chunk, String replicationNodes) {
+   public ChunkWriteCommand(ChunkServer target, String fileName, String chunkName, File chunk, String replicationNodes, boolean isReplicatingFile) {
       this.target = target;
       this.fileName = fileName;
       this.chunkName = chunkName;
       this.chunk = chunk;
       this.replicationNodes = replicationNodes;
+      this.isReplicatingFile = isReplicatingFile;
    }
 
    public ChunkWriteCommand() {}
@@ -58,6 +60,8 @@ public class ChunkWriteCommand implements Command {
          
          dout.writeInt(replicationNodes.length());
          dout.write(replicationNodes.getBytes());
+         
+         dout.writeBoolean(isReplicatingFile);
 
          dout.writeInt(fileBytes.length);
          dout.write(fileBytes);
@@ -88,6 +92,7 @@ public class ChunkWriteCommand implements Command {
          this.fileName = readString(din);
          this.chunkName = readString(din);
          this.replicationNodes = readString(din);
+         this.isReplicatingFile = din.readBoolean();
 
          int fileBytesSize = din.readInt();
          byte[] fileBytes = new byte[fileBytesSize];
@@ -107,14 +112,20 @@ public class ChunkWriteCommand implements Command {
 
    @Override
    public String toString() {
-      return "ChunkWriteCommand [target=" + target + ", fileName=" + fileName + ", chunkName="
-            + chunkName + ", chunk=" + chunk + ", replicationNodes=" + replicationNodes + "]";
+      return "ChunkWriteCommand [directoryName=" + directoryName + ", target=" + target
+            + ", fileName=" + fileName + ", chunkName=" + chunkName + ", chunk=" + chunk
+            + ", replicationNodes=" + replicationNodes + ", isReplicatingFile=" + isReplicatingFile
+            + "]";
    }
 
    public void writeChunkFile(String directoryName, byte[] fileBytes) {
       try {
          chunk = new File(directoryName, chunkName);
-         ChunkFileUtility.addSha1AndWriteChunk(fileBytes, chunk);
+         if(isReplicatingFile) {
+            ChunkFileUtility.writeChunk(fileBytes, chunk);
+         } else {
+            ChunkFileUtility.addSha1AndWriteChunk(fileBytes, chunk);
+         }
          System.out.println("Chunk writen: " + chunk.getAbsolutePath());
       } catch (Exception e) {
          e.printStackTrace();
@@ -139,6 +150,10 @@ public class ChunkWriteCommand implements Command {
 
    public String getReplicationNodes() {
       return replicationNodes;
+   }
+
+   public boolean isReplicatingFile() {
+      return isReplicatingFile;
    }
 
 }
