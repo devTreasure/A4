@@ -196,34 +196,39 @@ private List<File> splitFile(File inputFile) throws Exception {
    }
 
    /**
-    * Write chunk and target chunk server to first chunk serevr. Example: Chunk servers returned are
-    * A, B, C File Chunnks FC1, FC2, FC3
+    * Write chunk and target chunk server to first chunk serevr. 
+    * Example: Chunk servers returned are A, B, C and File Chunks are FC1, FC2, FC3
     * 
-    * Commands will be: (Chunk, TargetChunkServer) (FC1, A) and send it ot A (FC2, B) and send it ot
-    * A (FC3, C) and send it ot A
+    * Commands will be: (Chunk, TargetChunkServer) (FC1, [B,C]) sent o nchunk node A
     * 
-    * Chink server will check if i am not the target(using IP + PORT) then write to that target.
+    * Chink server will check replication node details present then write file there.
     * 
     * @param file
- * @throws IOException 
- * @throws UnknownHostException 
+    * @throws IOException 
+    * @throws UnknownHostException 
     * 
     */
    public void writeFiletoChunkNode(File file, List<File> chunks) throws UnknownHostException, IOException {
       if (chunkServers.isEmpty()) {
          System.out.println("Can not find any chunk server.");
       } else {
-         int counter = 0;
-         int max = chunkServers.size();
          ChunkServer toChunkServer = chunkServers.get(0);
 
-         for (File eachChunk : chunks) {
-            ChunkWriteCommand command = new ChunkWriteCommand(toChunkServer, file.getName(),
-                  eachChunk.getName(), eachChunk);
-            sender.sendAndReceiveData(toChunkServer.IP(), toChunkServer.PORT(), command.unpack());
-            if (counter < max - 1) {
-               counter++;
+         String replicationNodes = "";
+         if(chunkServers.size() > 1) {
+            System.out.println("Replication nodes available.");
+         } else {
+            for (ChunkServer eachChunkServer : chunkServers) {
+               replicationNodes += "," + eachChunkServer.IP()+":" + eachChunkServer.PORT();
             }
+            replicationNodes = replicationNodes.replaceFirst(",", "");
+         }
+         
+         for (File eachChunk : chunks) {
+            ChunkWriteCommand command = 
+                new ChunkWriteCommand(
+                   toChunkServer, file.getName(), eachChunk.getName(), eachChunk, replicationNodes);
+            sender.sendAndReceiveData(toChunkServer.IP(), toChunkServer.PORT(), command.unpack());
          }
       }
    }

@@ -19,12 +19,14 @@ public class ChunkWriteCommand implements Command {
    private String fileName;
    private String chunkName;
    private File chunk;
+   private String replicationNodes;
 
-   public ChunkWriteCommand(ChunkServer target, String fileName, String chunkName, File chunk) {
+   public ChunkWriteCommand(ChunkServer target, String fileName, String chunkName, File chunk, String replicationNodes) {
       this.target = target;
       this.fileName = fileName;
       this.chunkName = chunkName;
       this.chunk = chunk;
+      this.replicationNodes = replicationNodes;
    }
 
    public ChunkWriteCommand() {}
@@ -53,9 +55,13 @@ public class ChunkWriteCommand implements Command {
 
          dout.writeInt(chunkName.length());
          dout.write(chunkName.getBytes());
+         
+         dout.writeInt(replicationNodes.length());
+         dout.write(replicationNodes.getBytes());
 
          dout.writeInt(fileBytes.length);
          dout.write(fileBytes);
+         
          dout.flush();
          marshalledBytes = baOutputStream.toByteArray();
       } catch (Exception e) {
@@ -81,6 +87,7 @@ public class ChunkWriteCommand implements Command {
 
          this.fileName = readString(din);
          this.chunkName = readString(din);
+         this.replicationNodes = readString(din);
 
          int fileBytesSize = din.readInt();
          byte[] fileBytes = new byte[fileBytesSize];
@@ -101,7 +108,7 @@ public class ChunkWriteCommand implements Command {
    @Override
    public String toString() {
       return "ChunkWriteCommand [target=" + target + ", fileName=" + fileName + ", chunkName="
-            + chunkName + "]";
+            + chunkName + ", chunk=" + chunk + ", replicationNodes=" + replicationNodes + "]";
    }
 
    public void writeChunkFile(String directoryName, byte[] fileBytes) {
@@ -128,6 +135,10 @@ public class ChunkWriteCommand implements Command {
 
    public File getChunk() {
       return chunk;
+   }
+
+   public String getReplicationNodes() {
+      return replicationNodes;
    }
 
 }
