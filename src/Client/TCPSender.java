@@ -11,6 +11,10 @@ import java.net.UnknownHostException;
 public class TCPSender {
 
    public Command sendAndReceiveData(String hostIp, int hostPort, byte[] data) throws UnknownHostException, IOException {
+      return sendAndReceiveData(hostIp, hostPort, data, "");
+   }
+   
+   public Command sendAndReceiveData(String hostIp, int hostPort, byte[] data, String localPath) throws UnknownHostException, IOException {
       Socket socket = null;
       BufferedOutputStream dout = null;
       Command response = null;
@@ -22,7 +26,11 @@ public class TCPSender {
          dout.write(data);
          dout.flush();
          // read and parse response
-         response = CommandFactory.process(socket);
+         if(localPath.equals("")) {
+            response = CommandFactory.process(socket);            
+         } else {
+            response = CommandFactory.process(socket, localPath);
+         }
       } 
       catch(ConnectException e)
       {

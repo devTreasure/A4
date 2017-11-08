@@ -1,20 +1,14 @@
 package Client;
 
-
-
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 
 import ChunkServer.ChunkFileUtility;
-import ChunkServer.ChunkServer;
 
 public class ChunkWriteOperationsCommand implements Command {
 
@@ -26,6 +20,7 @@ public class ChunkWriteOperationsCommand implements Command {
    public String fileName;
    public String chunkName;
    public File chunk;
+   public String fileStorageDirectory = "NOT_SET";
 
    public ChunkWriteOperationsCommand(String IP, int PORT, String fileName, String chunkName,
          File chunk) {
@@ -97,11 +92,11 @@ public class ChunkWriteOperationsCommand implements Command {
          int fileBytesSize = din.readInt();
          byte[] fileBytes = new byte[fileBytesSize];
          din.readFully(fileBytes);
-         String name = "D:\\Temp\\chunkServer\\ToClient\\" + chunkName;
-         FileOutputStream fileOutputStream = new FileOutputStream(name);
+         chunk = new File(fileStorageDirectory, chunkName);
+         FileOutputStream fileOutputStream = new FileOutputStream(chunk);
          fileOutputStream.write(fileBytes);
          fileOutputStream.close();
-         System.out.println("Chunk writen: " + name);
+         System.out.println("Chunk writen: " + chunk.getAbsolutePath());
       } catch (IOException e) {
          e.printStackTrace();
       }

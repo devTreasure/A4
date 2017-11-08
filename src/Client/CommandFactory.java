@@ -48,6 +48,7 @@ public class CommandFactory {
 				cmd = chunk2ClienttWrite;
 			} else if (ChunkWriteOperationsCommand.cmd.equals(str_request_type)) {
 				ChunkWriteOperationsCommand chunkWriteOperationsCommand = new ChunkWriteOperationsCommand();
+				chunkWriteOperationsCommand.fileStorageDirectory = directoryPath;
 				chunkWriteOperationsCommand.pack(din);
 				cmd = chunkWriteOperationsCommand;
 			} else if (ChunkNodePollingCommand.cmd.equals(str_request_type)) {
@@ -59,6 +60,10 @@ public class CommandFactory {
 				chunkWriteCommand.directoryName = directoryPath;
 				chunkWriteCommand.pack(din);
 				cmd = chunkWriteCommand;
+			} else if (ChunkReplicaRequest.cmd.equals(str_request_type)) {
+			   ChunkReplicaRequest chunkServersRequestForChunkFileCommand = new ChunkReplicaRequest();
+			   chunkServersRequestForChunkFileCommand.pack(din);
+			   cmd = chunkServersRequestForChunkFileCommand;
 			} else {
 				System.out.println("ERROR: UNKNOWN COMMAND. " + str_request_type);
 			}

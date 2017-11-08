@@ -17,6 +17,7 @@ import ChunkServer.ChunkServer;
 import Client.ChunkNodeFileInfoCommand;
 import Client.ChunkNodeWentliveRequest;
 import Client.ChunkServersRequestCommand;
+import Client.ChunkReplicaRequest;
 import Client.Command;
 import Client.FileInfoCommnad;
 import Client.Node;
@@ -48,6 +49,7 @@ public class ControllerNode implements Node {
 	private Hashtable<String, FileInfo> fileInfoCollection = new Hashtable<String, FileInfo>();
 	private Hashtable<String, ArrayList<String>> fileSpiltInfoInfoCollection = new Hashtable<String, ArrayList<String>>();
 	private HashMap<String, FileInfo> fileInfoMap = new HashMap<String, FileInfo>();
+	private HashMap<String, Set<ChunkServer>> chunkFileInfoMap = new HashMap<String, Set<ChunkServer>>();
 	
 	public ControllerNode() {
 
@@ -106,13 +108,12 @@ public class ControllerNode implements Node {
 
 	
 	
-	public Command collectchunkNodeFileDetails(ChunkNodeFileInfoCommand command) {
-		
-		if(command!=null && command.allFileData.length()>0)
-		{
-			
+   public Command collectchunkNodeFileDetails(ChunkNodeFileInfoCommand command) {
+
+      if (command != null && command.allFileData.length() > 0) {
+
          System.out.println(command.allFileData + ":" + command.checksumID);
-   
+
          //// f1|f1c1:f1c2:f1c3 ? f2|f2c1:f2c2 ?
          String[] fileDetails = command.allFileData.split("\\?");
          for (String eachFileDetail : fileDetails) {
@@ -120,39 +121,43 @@ public class ControllerNode implements Node {
             String fileName = fileDetail[0];
             String[] chunks = fileDetail[1].split(":");
             FileInfo fileInfo = new FileInfo(fileName, chunks, command.chunkIP, command.chunkPORT);
+
+            if (command.ipAddress.equalsIgnoreCase("MAJOR_HEART_BEAT")) {
+               System.out.println("******MAJOR HEART BEAT***********");
+               System.out.println(fileInfo);
+               System.out.println("******END MAJOR HEART BEAT***********");
+               fileInfoMap.put(fileName, fileInfo);
+            } else {
+               System.out.println(fileInfo);
+               fileInfoMap.put(fileName, fileInfo);
+            }
             
-            if(command.ipAddress.equalsIgnoreCase("MAJOR_HEART_BEAT"))
-            {
-            	 System.out.println("******MAJOR HEART BEAT***********");
-                 System.out.println(fileInfo);
-                 System.out.println("******END MAJOR HEART BEAT***********");
-                 fileInfoMap.put(fileName, fileInfo);
+            if(chunks!=null && chunks.length > 0) {
+               for (String eachChunkName : chunks) {
+                  Set<ChunkServer> servers = chunkFileInfoMap.get(eachChunkName);
+                  if(servers==null) {
+                     servers = new HashSet<>();
+                     chunkFileInfoMap.put(eachChunkName, servers);
+                  }
+                  servers.add(new ChunkServer(command.chunkIP, command.chunkPORT));
+               }
             }
-            else
-            {
-            	System.out.println(fileInfo);
-            	fileInfoMap.put(fileName, fileInfo);
-            }
+            
          }
          return new Response(true, "chunk file info recevied by controller");
-		}
-		else
-		{
-	       if(command.ipAddress.equalsIgnoreCase("MAJOR_HEART_BEAT"))
-	        {
-	            	 System.out.println("******MAJOR HEART BEAT***********");
-	            	 System.out.println("No new files being added recntly on Chunkserver");
-	            	
-	        }
-	       else
-	       {
-	    	   System.out.println("No new files being added recntly on Chunkserver");
-	       }
-	       
-	       return new Response(true, "*** No new files ADDED to chunk Server ***");
-		}
+      } else {
+         if (command.ipAddress.equalsIgnoreCase("MAJOR_HEART_BEAT")) {
+            System.out.println("******MAJOR HEART BEAT***********");
+            System.out.println("No new files being added recntly on Chunkserver");
 
-	}
+         } else {
+            System.out.println("No new files being added recntly on Chunkserver");
+         }
+
+         return new Response(true, "*** No new files ADDED to chunk Server ***");
+      }
+
+   }
 
 	private void intializeControllerNode() throws IOException {
 
@@ -210,45 +215,37 @@ public class ControllerNode implements Node {
              return new Response(true, fileInfo.chunkNodeIP +":"+String.valueOf(fileInfo.chunkNodePORT) +":"+ chunkFileNames);
           }
 	}
-	
 
-	@Override
-	public Command notify(Command command) throws Exception {
-		// TODO Auto-generated method stub
-		if (command instanceof ChunkServersRequestCommand) {
-			return returnTheChunkServer();
-		}
+   @Override
+   public Command notify(Command command) throws Exception {
+      // TODO Auto-generated method stub
+      if (command instanceof ChunkServersRequestCommand) {
+         return returnTheChunkServer();
+      } else if (command instanceof ChunkNodeWentliveRequest) {
+         return addChunkinfo2Collection((ChunkNodeWentliveRequest) command);
+      } else if (command instanceof ChunkNodeFileInfoCommand) {
+         return collectchunkNodeFileDetails((ChunkNodeFileInfoCommand) command);
+      } else if (command instanceof FileInfoCommnad) {
+         return collectchunkNodeFileDetailsforclientRequest((FileInfoCommnad) command);
+      } else if (command instanceof ChunkReplicaRequest) {
+         return retunChunkServerrsForChunkFile((ChunkReplicaRequest) command);
+      } else {
+         return new Response(false, "Command not recognized by controller.");
+      }
+   }
 
-		if (command instanceof ChunkNodeWentliveRequest) {
-			return addChunkinfo2Collection((ChunkNodeWentliveRequest) command);
-		}
-
-		if (command instanceof ChunkNodeFileInfoCommand) {
-			return collectchunkNodeFileDetails((ChunkNodeFileInfoCommand) command);
-		}
-		if (command instanceof FileInfoCommnad)
-		{
-			return collectchunkNodeFileDetailsforclientRequest((FileInfoCommnad) command);
-		}
-		/*
-		 * Command response = new NodeDetails("", -1, -1, true, "Nothing"); if
-		 * (command instanceof ChunkServersRequestCommand) {
-		 * ResolveSuccessorInFingerTableMessage asm =
-		 * (ResolveSuccessorInFingerTableMessage) command; response =
-		 * resolveTragetNode(asm.id); } else if (command instanceof
-		 * SetMeAsSuccessor) { SetMeAsSuccessor msg = (SetMeAsSuccessor)
-		 * command; response = successorChanged(msg); } else if (command
-		 * instanceof SetMeAsPredecessor) { SetMeAsPredecessor msg =
-		 * (SetMeAsPredecessor) command; response = predecessorChanged(msg); }
-		 * else if (command instanceof GetSuccessor) { // GetSuccessor msg =
-		 * (GetSuccessor) command; response = getSuccessor(); } else if (command
-		 * instanceof UpdateFingerTable) { // GetSuccessor msg = (GetSuccessor)
-		 * command; response = updateFingerTable(); } else if(command instanceof
-		 * PredecessorDetail) { response = predecessor; }
-		 */
-		// System.out.println("Response: " + response);
-		// return response;
-		return null;
-	}
+   private Command retunChunkServerrsForChunkFile(ChunkReplicaRequest command) {
+      Set<ChunkServer> set = chunkFileInfoMap.get(command.chunkFileName);
+      if(set == null || set.size()==0) {
+         return new Response(false, "No chunk servers found.");
+      } else {
+         String message = "";
+         for (ChunkServer eachChunkServer : set) {
+            message += "," + eachChunkServer.IP() + ":" + String.valueOf(eachChunkServer.PORT());
+         }
+         message = message.replaceFirst(",", "");
+         return new Response(true, message);
+      }
+   }
 
 }

@@ -18,7 +18,7 @@ public class ClientNode implements Node {
    public static final String WRITE_COMMAND = "write";
    public static final String READ_COMMAND = "read";
    public static final String THREE_SERVERS = "3servers";
-   public static final String ServerToClientPATH = "D:\\Temp\\chunkServerToClient";
+   public static String ServerToClientPATH = "NOT_SET";
    public static boolean continueOperations = true;
 
    public String clientNodeIP = "";
@@ -61,14 +61,28 @@ public class ClientNode implements Node {
       String controllerIP = "";
       int nodeId = 0;
 
-      if (args.length < 2) {
-         System.out.println("Exa: java A2.Node <Controller NODE IP> <Controller NODE PORT>");
+      if (args.length < 3) {
+         System.out.println("Exa: java A4.ClientNode <Controller NODE_IP> <Controller NODE_PORT> <FILE_STORAGE_PATH>");
          System.exit(0);
       }
 
       try {
          controllerIP = args[0];
          controllerNodePORT = Integer.parseInt(args[1]);
+         ServerToClientPATH = args[2];
+         File fileStoragePath = new File(ServerToClientPATH);
+         if(fileStoragePath.exists()) {
+            System.out.println("Directiry exists.");
+         } else {
+            fileStoragePath.mkdirs();
+            if(fileStoragePath.exists() && fileStoragePath.isDirectory()) {
+               System.out.println("Filestorage created at:" + fileStoragePath.getAbsolutePath());
+            } else {
+               System.out.println("ERROR: file can not be created or not a directory.");
+               System.exit(0);
+            }
+         }
+         
          // if (args.length == 3)
          // nodeId = Integer.parseInt(args[2]);
       } catch (Exception e) {
@@ -127,62 +141,105 @@ public class ClientNode implements Node {
       System.out.println("File to be read is :" + filename);
 
       FileInfoCommnad controllerFileInfo = new FileInfoCommnad(filename);
-      Command resp = new TCPSender().sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, controllerFileInfo.unpack());
+      Command resp = sender.sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, controllerFileInfo.unpack(), ServerToClientPATH);
       Response response = (Response) resp;
-      
-      Response readResponse=null;
-      ArrayList<File> fileToBeMerged=new ArrayList<File>();
-      if (response != null) {
-         String message = response.getMessage();
-         String[] strChunkNodeInfo = message.split(":");
-
-         System.out.println(strChunkNodeInfo[0].toString() + ":" + strChunkNodeInfo[1].toString());
-
-         String IP = strChunkNodeInfo[0].toString();
-         int PORT = Integer.parseInt(strChunkNodeInfo[1].toString());
-         String[] chunkFiles = strChunkNodeInfo[2].split(",");
-         fileToBeMerged.clear();
-         for (String chunkFileName : chunkFiles) {
-            ChunkFileReadCommand chunk2Clientinfo = new ChunkFileReadCommand(IP, PORT, this.clientNodeIP, this.clientNodePORT, chunkFileName);
-            Command resps = new TCPSender().sendAndReceiveData(IP, PORT, chunk2Clientinfo.unpack());
-            readResponse=(Response) resps;
-            
-            File f =new File(ServerToClientPATH+"\\"+chunkFileName);
-            fileToBeMerged.add(f);
-         }
-         if(readResponse.isSuccess())
-         {
-        	 
-        	 //SUCCESS
-        	 
-        	 //Files are copied on the first chink server
-        	 //now replicte the same files on another server.
-        	 
-        	FileSplit objfs=new FileSplit();
-        	objfs.mergeFiles(fileToBeMerged, new File(ServerToClientPATH+"\\"+filename));
-        	
-        	intitatefileReplicationtoOtherChunk(filename,IP,PORT);
-         }
-         else
-         {
-        	
-        	reportContollerAboutFaultyChunkandLocateAndResotreTheFile();
-         }
-        
-
-      } else {
-
-         System.out.println("ControllerNodeFileAndNodeInfoCommnad issue");
+      if(response==null || !response.isSuccess()) {
+         System.out.println("FAILURE: message:" + response);
+         return;
       }
+      
+      ArrayList<File> fileToBeMerged=new ArrayList<File>();
+      String message = response.getMessage();
+
+      System.out.println("Chunknode detail: " + message);
+      String[] strChunkNodeInfo = message.split(":");
+      if(strChunkNodeInfo == null || !(strChunkNodeInfo.length > 2)) {
+         System.out.println("FAILURE: invalid chunkNode details from controller." + response);
+         return;
+      }
+      
+      String IP = strChunkNodeInfo[0].toString();
+      int PORT = Integer.parseInt(strChunkNodeInfo[1].toString());
+      String[] chunkFiles = strChunkNodeInfo[2].split(",");
+      fileToBeMerged.clear();
+      boolean allChunnkReceivedSuccessfully = true;
+      for (String chunkFileName : chunkFiles) {
+         ChunkFileReadCommand chunkFileReadCommand = new ChunkFileReadCommand(IP, PORT, this.clientNodeIP, this.clientNodePORT, chunkFileName);
+         Command filedataResp = sender.sendAndReceiveData(IP, PORT, chunkFileReadCommand.unpack(), ServerToClientPATH);
+         if(filedataResp instanceof ChunkWriteOperationsCommand) {
+            ChunkWriteOperationsCommand filedata = (ChunkWriteOperationsCommand) filedataResp;
+            System.out.println("Chunnk written at: " + filedata.chunk.getAbsolutePath());
+            fileToBeMerged.add(filedata.chunk);
+         }
+         if(filedataResp instanceof Response) {
+            Response fileData = (Response) filedataResp;
+            if(!fileData.isSuccess() && fileData.getMessage().startsWith("Tempered:")) {
+               System.out.println("Chunk is tempred.: " + chunkFileName);
+               System.out.println(fileData);
+               
+               //Recover the tempered chunk from replica.
+               ChunkReplicaRequest reqForNewChunk = new ChunkReplicaRequest("", -1, chunkFileName);
+               Command chunkReplicaServers = sender.sendAndReceiveData(this.controllerNodeIP, this.controllerNodePORT, reqForNewChunk.unpack(), ServerToClientPATH);
+               Response chunkReplicaServersResp = (Response) chunkReplicaServers;
+               if(chunkReplicaServersResp.isSuccess()) {
+                  String data = chunkReplicaServersResp.getMessage();
+                  System.out.println("Chunnk servers found. " + data);
+                  String[] replicatedNodes = data.split(",");
+//                     HashSet<ChunkServer> replicatedNodes = new HashSet<ChunkServer>();
+//                     replicatedNodes.add(new ChunkServer(servers[0], Integer.parseInt(servers[1])));
+                  String anothrIP = "";
+                  int anotherPort = -1;
+                  for (String eachServer : replicatedNodes) {
+                     String[] split = eachServer.split(":");
+                     anothrIP = split[0];
+                     String anotherPORTStr = split[1];
+                     anotherPort = Integer.parseInt(anotherPORTStr);
+                     if(anothrIP.equals(IP) && anotherPort == PORT) {
+                        continue;
+                     } else {
+                        break;
+                     }
+                  }
+                  if(anotherPort != -1) {
+                     try {
+                        System.out.println("Requesting replica from: " + anothrIP + ":" +  anotherPort);
+                        ChunkFileReadCommand chunkFileReplicaReadCommand = new ChunkFileReadCommand("", -1, "", -1, chunkFileName);
+                        Command replicaReadResp = sender.sendAndReceiveData(anothrIP, anotherPort, chunkFileReplicaReadCommand.unpack(), ServerToClientPATH);
+                        System.out.println(replicaReadResp);
+                        if(replicaReadResp instanceof ChunkWriteOperationsCommand) {
+//                           ChunkWriteOperationsCommand filedata = (ChunkWriteOperationsCommand) filedataResp;
+//                           System.out.println("Replicat written at:" + filedata.chunk.getAbsolutePath());
+                           allChunnkReceivedSuccessfully = true;
+                        } else if (replicaReadResp instanceof Response) {
+                           System.out.println(replicaReadResp);
+                           allChunnkReceivedSuccessfully = ((Response) replicaReadResp).isSuccess();
+                        }
+                     } catch (Exception e) {
+                        e.printStackTrace();
+                     }
+                  }
+                  
+               }
+               
+            }
+            
+         }
+      }
+      // Files are copied on the first chink server
+      // now replicte the same files on another server.
+      FileSplit objfs = new FileSplit();
+      File mergerdFile = new File(ServerToClientPATH, filename);
+      objfs.mergeFiles(fileToBeMerged, mergerdFile);
+      System.out.println("File merged at:" + mergerdFile.getAbsolutePath());
+
+      if (allChunnkReceivedSuccessfully) {
+         System.out.println("Merge successful");
+      } else {
+         System.out.println("Some of the chunks are tempred with. Merge may not be successful..");
+      }
+      
    }
 
-
-   private void intitatefileReplicationtoOtherChunk(String fileName,String IP,int PORT) {
-	// TODO Auto-generated method stub
-	   //Issue replication command to the chunk node we used to drop the files 
-	   //Also pass the IP-PORT where it need to replicate.
-	
-}
 
 private void reportContollerAboutFaultyChunkandLocateAndResotreTheFile() {
 	// TODO Auto-generated method stub

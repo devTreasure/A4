@@ -312,10 +312,6 @@ public class ChunkNode implements Node {
 	}
 
 	public static void main(String[] args) throws Exception {
-		// TODO Auto-generated method stub
-		System.out.println("Enter Controller node IP-SPACE-PORT");
-
-		String[] strSplit = null;
 
 		int controllerNodePORT = 0;
 		String controllerIP = "";
@@ -343,6 +339,8 @@ public class ChunkNode implements Node {
 			      System.out.println("Exiting. Please create directory and then start.");
 			      System.exit(0);
 			   }
+			} else {
+			   System.out.println("Files uploaded from client will be stored at:" + directoryName);
 			}
 			
 
@@ -477,7 +475,7 @@ public class ChunkNode implements Node {
 
 	private Command ChunkWriteToClient(ChunkFileReadCommand command) {
 		System.out.println("Inside chunk2ClienttWrite method");
-		File file = new File("D:\\Temp\\chunkServer\\out", command.fileName);
+		File file = new File(directoryName, command.fileName);
 		if (!file.exists()) {
 			return new Response(false, "File not found." + file.getAbsolutePath());
 		}

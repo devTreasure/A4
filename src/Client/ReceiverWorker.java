@@ -28,7 +28,7 @@ public class ReceiverWorker implements Runnable {
             socket = serverSocket.accept();
             System.out.println("client socket excepted");
             //Get the message
-            request = CommandFactory.process(socket);
+            request = CommandFactory.process(socket, node.ServerToClientPATH);
             
             try {
                Command response = node.notify(request);
